@@ -13,6 +13,12 @@ import {
 } from "../utils/connectionSystem";
 import { checkCollision, getSafePosition } from "../utils/collisionDetection";
 import { physicsWorld, notifyGeometryChanged } from "../utils/physicsSystem";
+import {
+  computeAlignmentSnaps,
+  buildAlignmentGuideDescriptors,
+  createGuideLine,
+  clearAlignmentGuides,
+} from "../utils/alignmentSystem";
 
 export default function CADObject({
   object,
@@ -160,6 +166,33 @@ export default function CADObject({
       // Use physics broad‑phase to gather potential colliders
       const otherMeshes = physicsWorld.getPotentialColliders(meshRef.current);
 
+      // ALIGNMENT LOGIC (prior to collision finalization)
+      // Compute potential snaps (one per axis) relative to nearby objects (same set used for collision)
+      if (otherMeshes.length > 0) {
+        const snaps = computeAlignmentSnaps(meshRef.current, otherMeshes);
+        if (snaps.length) {
+          // Apply snap deltas to position BEFORE collision blocking so that blocked axis logic respects alignment
+          const pos = meshRef.current.position.clone();
+          snaps.forEach((s) => {
+            pos[s.axis] += s.delta; // move exactly onto target line/face
+          });
+          meshRef.current.position.copy(pos);
+          meshRef.current.updateMatrixWorld();
+
+          // Visual guides
+          clearAlignmentGuides(scene);
+          const guideDescs = buildAlignmentGuideDescriptors(
+            meshRef.current,
+            snaps
+          );
+          guideDescs.forEach((d) => scene.add(createGuideLine(d)));
+        } else {
+          clearAlignmentGuides(scene);
+        }
+      } else {
+        clearAlignmentGuides(scene);
+      }
+
       if (isModule) {
         // IMMEDIATE SNAP LOGIC for modules (no force – direct alignment when in range)
         meshRef.current.updateMatrixWorld();
@@ -290,6 +323,7 @@ export default function CADObject({
       meshRef.current.material.emissive = new THREE.Color(0x000000);
       meshRef.current.material.emissiveIntensity = 0;
       meshRef.current.material.needsUpdate = true;
+      clearAlignmentGuides(scene);
     }
   });
 
