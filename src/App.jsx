@@ -375,7 +375,7 @@ function App() {
   );
   const selectedObject =
     selectedObjects.length === 1 ? selectedObjects[0] : null;
-  const drawerOpen = selectedObjects.length > 0; // kept for conditional but no drawer now
+  const drawerOpen = selectedObjects.length > 0;
 
   return (
     <div className="app">
@@ -438,35 +438,19 @@ function App() {
         </div>
       </header>
 
-      {/* Left floating stack */}
-      <div className="panel-left-stack">
-        <Toolbar
-          transformMode={transformMode}
-          onSetTransformMode={setTransformMode}
-          onDelete={deleteSelectedObjects}
-          onDuplicate={duplicateSelectedObjects}
-          selectedCount={selectedObjectIds.length}
-          onImportFiles={handleImportFiles}
-          onExport={handleExport}
-          onToggleBodies={() => setBodyPanelOpen((prev) => !prev)}
-          bodyPanelOpen={isBodyPanelOpen}
-          onToggleModules={() => setModuleLibraryOpen((prev) => !prev)}
-          moduleLibraryOpen={isModuleLibraryOpen}
-        />
-        {isBodyPanelOpen && (
-          <div className="floating-body-panel">
-            <BodyPanel
-              isOpen={true}
-              bodies={objects}
-              selectedIds={selectedObjectIds}
-              onSelect={handleSelectFromPanel}
-              onToggleVisibility={handleToggleVisibility}
-              onDelete={handleDeleteObject}
-              onClose={() => setBodyPanelOpen(false)}
-            />
-          </div>
-        )}
-      </div>
+      <Toolbar
+        transformMode={transformMode}
+        onSetTransformMode={setTransformMode}
+        onDelete={deleteSelectedObjects}
+        onDuplicate={duplicateSelectedObjects}
+        selectedCount={selectedObjectIds.length}
+        onImportFiles={handleImportFiles}
+        onExport={handleExport}
+        onToggleBodies={() => setBodyPanelOpen((prev) => !prev)}
+        bodyPanelOpen={isBodyPanelOpen}
+        onToggleModules={() => setModuleLibraryOpen((prev) => !prev)}
+        moduleLibraryOpen={isModuleLibraryOpen}
+      />
 
       {isModuleLibraryOpen && (
         <ModuleLibraryPanel
@@ -483,7 +467,7 @@ function App() {
         />
       )}
 
-      <div className="app-content">
+      <div className={`app-content ${drawerOpen ? "drawer-open" : ""}`}>
         <div className="canvas-container">
           <CADCanvas
             objects={visibleObjects}
@@ -496,16 +480,25 @@ function App() {
             axisLock={axisLock}
           />
         </div>
-        {drawerOpen && (
-          <div className="floating-panel panel-right">
+        <div className={`properties-drawer ${drawerOpen ? "open" : ""}`}>
+          {drawerOpen && (
             <PropertiesPanel
               selectedObject={selectedObject}
               selectedObjects={selectedObjects}
               onUpdateObject={updateObject}
               onExport={handleExport}
             />
-          </div>
-        )}
+          )}
+        </div>
+        <BodyPanel
+          isOpen={isBodyPanelOpen}
+          bodies={objects}
+          selectedIds={selectedObjectIds}
+          onSelect={handleSelectFromPanel}
+          onToggleVisibility={handleToggleVisibility}
+          onDelete={handleDeleteObject}
+          onClose={() => setBodyPanelOpen(false)}
+        />
       </div>
     </div>
   );
