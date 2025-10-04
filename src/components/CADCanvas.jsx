@@ -1,4 +1,4 @@
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import { useRef } from "react";
 import {
   OrbitControls,
@@ -7,7 +7,38 @@ import {
   GizmoViewcube,
 } from "@react-three/drei";
 import Scene from "./Scene";
+import MagneticEffectManager from "./MagneticEffectManager";
 import { useTouchGestures } from "../utils/touchGestures";
+
+// Helper component to access scene
+function SceneContent({
+  objects,
+  selectedObjectIds,
+  onSelectObject,
+  transformMode,
+  onTransformObject,
+  axisLock,
+}) {
+  const { scene } = useThree();
+
+  return (
+    <>
+      <Scene
+        objects={objects}
+        selectedObjectIds={selectedObjectIds}
+        onSelectObject={onSelectObject}
+        transformMode={transformMode}
+        onTransformObject={onTransformObject}
+        axisLock={axisLock}
+      />
+      <MagneticEffectManager
+        objects={objects}
+        selectedObjectIds={selectedObjectIds}
+        scene={scene}
+      />
+    </>
+  );
+}
 
 export default function CADCanvas({
   objects,
@@ -52,8 +83,8 @@ export default function CADCanvas({
         />
       )}
 
-      {/* Scene with objects */}
-      <Scene
+      {/* Scene with objects and magnetic effects */}
+      <SceneContent
         objects={objects}
         selectedObjectIds={selectedObjectIds}
         onSelectObject={onSelectObject}

@@ -16,7 +16,8 @@ export default function Scene({
           object={obj}
           isSelected={selectedObjectIds.includes(obj.id)}
           onSelect={(e) => {
-            const isMultiSelect = e.ctrlKey || e.metaKey;
+            // Multi-select with Ctrl (Windows/Linux) or Cmd (Mac)
+            const isMultiSelect = e.ctrlKey || e.metaKey || e.shiftKey;
             onSelectObject(obj.id, isMultiSelect);
           }}
           transformMode={transformMode}
@@ -24,6 +25,7 @@ export default function Scene({
             onTransformObject(obj.id, transform, options)
           }
           axisLock={axisLock}
+          allObjects={objects}
         />
       ))}
     </group>

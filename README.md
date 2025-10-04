@@ -1,76 +1,63 @@
-# Habitat Model Viewer
+# 🏗️ Habitat Creator - Modular Space Habitat Assembly Tool
 
-A lightweight web viewer (React + Three.js via `@react-three/fiber`) focused on importing, viewing, and transforming 3D habitat components. Original CAD sketch / face editing features were removed to prioritize performance and simplicity.
+A professional 3D CAD-style tool for designing and assembling modular space habitats, built for the **NASA Space Apps Challenge 2024**.
 
-## Features
+## 🎯 Features
 
-- Import multiple `.glb`, `.gltf`, and `.stl` files (drag via Import button)
-- Export current scene as:
-  - GLB (binary glTF)
-  - STL (ASCII)
-  - JSON (internal scene description)
-- Move / Rotate / Scale selected objects with transform gizmo
-- Multi-select (Ctrl/Cmd click)
-- Duplicate / Delete objects
-- Axis lock (X / Y / Z keys) and undo/redo (Ctrl+Z / Ctrl+Shift+Z)
-- Compact adaptive toolbar for minimal screen footprint
-- Grid toggle
+### ✨ **Modular Habitat Assembly System** (NEW!)
 
-## Usage
+- 🏗️ **15+ Habitat Modules** - Procedural and imported STL models
+- ⚙️ **Real-time Parameter Adjustment** - Adjustable dimensions for all modules
+- 🔗 **Snap-to-Connect Framework** - Intelligent attachment point system
+- 🎨 **Professional Module Library** - Searchable, categorized, drag-and-drop
+- 📐 **Procedural Generators** - 7 parametric shape generators
 
-Development:
+### 🎨 Core CAD Features
 
-```
+- 📦 **3D Model Import/Export** - GLB, STL, JSON formats
+- 🎯 **Precision Transforms** - Move, rotate, scale with axis locking
+- ↶↷ **Undo/Redo System** - Full history management
+- 💾 **Auto-Save Projects** - Save every 3 seconds to localStorage
+- 🖼️ **Landing Page** - Multi-project management interface
+- 📱 **Touch Gestures** - Full iPad support with pinch/rotate/pan
+
+### 🚀 Quick Start
+
+```bash
+# Install dependencies
 npm install
+
+# Start development server
 npm run dev
-```
 
-Build:
-
-```
+# Build for production
 npm run build
-npm run preview
 ```
 
-## Import Guidelines
+## 📚 Documentation
 
-| Aspect                   | Recommended                                      |
-| ------------------------ | ------------------------------------------------ |
-| Format                   | GLB (binary)                                     |
-| Per-mesh triangle budget | ≤ 100k (soft warn above)                         |
-| Textures                 | Use compressed (Basis/KTX2) before exporting GLB |
-| Scale                    | 1 unit ≈ 1 meter                                 |
+- 📖 **[QUICK_START_MODULES.md](QUICK_START_MODULES.md)** - How to use the modular system
+- 🔧 **[MODULAR_HABITAT_SYSTEM.md](MODULAR_HABITAT_SYSTEM.md)** - Technical documentation
+- 📋 **[IMPLEMENTATION_CHECKLIST.md](IMPLEMENTATION_CHECKLIST.md)** - Complete feature list
+- 🎨 **[VISUAL_SUMMARY.md](VISUAL_SUMMARY.md)** - Quick visual overview
+- 📦 **[public/models/README.md](public/models/README.md)** - STL model specifications
 
-Heavy meshes log a console warning; future improvements can add simplification & LOD.
+## 🏗️ Available Modules
 
-## Keyboard Shortcuts
+### Procedural Modules (Instant Use)
 
-| Key                   | Action           |
-| --------------------- | ---------------- |
-| Ctrl+Z                | Undo             |
-| Ctrl+Shift+Z / Ctrl+Y | Redo             |
-| Delete / Backspace    | Delete selection |
-| X / Y / Z             | Toggle axis lock |
-| Esc                   | Clear axis lock  |
+- 🏠 Small/Medium/Large Habitat Cylinders (adjustable)
+- 🎈 Inflatable Modules (BEAM-style)
+- 🔮 Observation Domes (full & shallow)
+- 🚇 Tunnels & Connectors (various sizes)
+- 🔌 Size Adapters (conical transitions)
+- 🔗 Docking Ports (collars)
 
-## Code Structure
+### Imported Models (Ready for STL Files)
 
-- `src/App.jsx` – application state & orchestration
-- `src/components/Toolbar.jsx` – adaptive compact UI
-- `src/components/CADCanvas.jsx` – Three.js canvas wrapper
-- `src/components/CADObject.jsx` – individual object with transform controls
-- `src/components/PropertiesPanel.jsx` – material & transform editing
-- `src/utils/importUtils.js` – GLB/STL import logic
-- `src/utils/exportUtils.js` – JSON / STL / GLB export
-- `src/utils/historyManager.js` – undo/redo stack
-
-## Future Ideas
-
-- Mesh decimation / auto-LOD generation
-- Texture compression pipeline hook (KTX2)
-- Scene persistence (local storage / file save)
-- Instancing for repeated modules
-
-## License
-
-Internal prototype for NASA Space Apps Challenge – adapt freely within project scope.
+- 🚪 Detailed Airlock (Priority 1)
+- ✚ 4-Way Junction Node (Priority 1)
+- ✳️ 6-Way Junction Node (Priority 1)
+- ☀️ Solar Arrays (Priority 2)
+- 📡 Communications Antenna (Priority 2)
+- 🔘 NASA CBM Docking Adapter (Priority 2)

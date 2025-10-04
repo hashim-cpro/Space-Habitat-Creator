@@ -11,6 +11,8 @@ export default function Toolbar({
   onExport,
   onToggleBodies,
   bodyPanelOpen,
+  onToggleModules,
+  moduleLibraryOpen,
 }) {
   const fileInputRef = useRef(null);
 
@@ -34,6 +36,14 @@ export default function Toolbar({
         title="Toggle body list"
       >
         ☰ Bodies
+      </button>
+
+      <button
+        className={`toolbar-toggle ${moduleLibraryOpen ? "active" : ""}`}
+        onClick={onToggleModules}
+        title="Toggle module library"
+      >
+        🏗️ Modules
       </button>
 
       <div className="toolbar-section">

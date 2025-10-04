@@ -7,7 +7,7 @@ import { useEffect, useRef } from "react";
  * - Pinch: zoom
  */
 export function useTouchGestures(controlsRef, enabled = true) {
-  const touchStartRef = useRef({});
+//   const touchStartRef = useRef({});
   const lastDistanceRef = useRef(0);
   const lastMidpointRef = useRef({ x: 0, y: 0 });
 

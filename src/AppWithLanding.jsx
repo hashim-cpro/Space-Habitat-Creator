@@ -4,9 +4,12 @@ import Toolbar from "./components/Toolbar";
 import PropertiesPanel from "./components/PropertiesPanel";
 import BodyPanel from "./components/BodyPanel";
 import LandingPage from "./components/LandingPage";
+import ModuleLibraryPanel from "./components/ModuleLibraryPanel";
+import ModuleParameterPanel from "./components/ModuleParameterPanel";
 import { exportToJSON, exportToSTL, exportToGLB } from "./utils/exportUtils";
 import { importFiles } from "./utils/importUtils";
 import { HistoryManager } from "./utils/historyManager";
+import * as ModuleGenerators from "./utils/moduleGenerators";
 import {
   saveProject,
   getProject,
@@ -28,6 +31,8 @@ function EditorView({ initialProject, onExit }) {
   );
   const [axisLock, setAxisLock] = useState(null);
   const [isBodyPanelOpen, setBodyPanelOpen] = useState(false);
+  const [isModuleLibraryOpen, setModuleLibraryOpen] = useState(false);
+  const [selectedModuleForParams, setSelectedModuleForParams] = useState(null);
   const historyManager = useRef(new HistoryManager());
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
@@ -69,6 +74,7 @@ function EditorView({ initialProject, onExit }) {
   const selectObject = (id, isMultiSelect = false) => {
     if (id === null) {
       setSelectedObjectIds([]);
+      setSelectedModuleForParams(null);
       return;
     }
 
@@ -80,20 +86,89 @@ function EditorView({ initialProject, onExit }) {
       }
     } else {
       setSelectedObjectIds([id]);
+
+      // If selecting a procedural module, open parameter panel
+      const selectedObj = objects.find((obj) => obj.id === id);
+      if (
+        selectedObj?.type === "module" &&
+        selectedObj?.geometryType === "procedural"
+      ) {
+        setSelectedModuleForParams(selectedObj);
+      } else {
+        setSelectedModuleForParams(null);
+      }
     }
   };
 
   const updateObjectTransform = (id, transform, { commit = false } = {}) => {
     setObjects((prevObjects) => {
-      const newObjects = prevObjects.map((obj) =>
-        obj.id === id
-          ? { ...obj, transform: { ...obj.transform, ...transform } }
-          : obj
-      );
-      if (commit) {
-        saveHistory(newObjects);
+      // If multiple objects are selected, move them all together
+      if (selectedObjectIds.length > 1 && selectedObjectIds.includes(id)) {
+        // Calculate delta from the moved object
+        const movedObj = prevObjects.find((obj) => obj.id === id);
+        if (!movedObj) return prevObjects;
+
+        const delta = {
+          position: [
+            transform.position[0] - movedObj.transform.position[0],
+            transform.position[1] - movedObj.transform.position[1],
+            transform.position[2] - movedObj.transform.position[2],
+          ],
+          rotation: [
+            transform.rotation[0] - movedObj.transform.rotation[0],
+            transform.rotation[1] - movedObj.transform.rotation[1],
+            transform.rotation[2] - movedObj.transform.rotation[2],
+          ],
+          scale: [
+            transform.scale[0] / movedObj.transform.scale[0],
+            transform.scale[1] / movedObj.transform.scale[1],
+            transform.scale[2] / movedObj.transform.scale[2],
+          ],
+        };
+
+        // Apply delta to all selected objects
+        const newObjects = prevObjects.map((obj) => {
+          if (selectedObjectIds.includes(obj.id)) {
+            return {
+              ...obj,
+              transform: {
+                position: [
+                  obj.transform.position[0] + delta.position[0],
+                  obj.transform.position[1] + delta.position[1],
+                  obj.transform.position[2] + delta.position[2],
+                ],
+                rotation: [
+                  obj.transform.rotation[0] + delta.rotation[0],
+                  obj.transform.rotation[1] + delta.rotation[1],
+                  obj.transform.rotation[2] + delta.rotation[2],
+                ],
+                scale: [
+                  obj.transform.scale[0] * delta.scale[0],
+                  obj.transform.scale[1] * delta.scale[1],
+                  obj.transform.scale[2] * delta.scale[2],
+                ],
+              },
+            };
+          }
+          return obj;
+        });
+
+        if (commit) {
+          saveHistory(newObjects);
+        }
+        return newObjects;
+      } else {
+        // Single object movement
+        const newObjects = prevObjects.map((obj) =>
+          obj.id === id
+            ? { ...obj, transform: { ...obj.transform, ...transform } }
+            : obj
+        );
+        if (commit) {
+          saveHistory(newObjects);
+        }
+        return newObjects;
       }
-      return newObjects;
     });
   };
 
@@ -238,6 +313,104 @@ function EditorView({ initialProject, onExit }) {
     setBodyPanelOpen(true);
   };
 
+  // Module System Functions
+  const handleModuleSelect = (moduleDefinition) => {
+    const counter = objectIdCounter;
+
+    if (moduleDefinition.type === "procedural") {
+      // Generate geometry for procedural modules
+      const generatorFunc = ModuleGenerators[moduleDefinition.generator];
+      if (!generatorFunc) {
+        console.error(
+          `Generator function ${moduleDefinition.generator} not found`
+        );
+        return;
+      }
+
+      const geometry = generatorFunc(moduleDefinition.defaultParams);
+
+      const newModule = {
+        id: counter,
+        name: moduleDefinition.name,
+        type: "module",
+        geometryType: "procedural",
+        hidden: false,
+        transform: {
+          position: [0, 0, 0],
+          rotation: [0, 0, 0],
+          scale: [1, 1, 1],
+        },
+        material: {
+          color: "#cccccc",
+          metalness: 0.6,
+          roughness: 0.4,
+          transparent: false,
+          opacity: 1,
+          wireframe: false,
+          selectedColor: "#00ff88",
+          hoverColor: "#00ddff",
+        },
+        userData: {
+          isModule: true,
+          moduleDefinition: moduleDefinition,
+          parameters: moduleDefinition.defaultParams,
+          geometry: geometry,
+          connections: [],
+        },
+      };
+
+      const newObjs = [...objects, newModule];
+      setObjects(newObjs);
+      setObjectIdCounter(counter + 1);
+      setSelectedObjectIds([counter]);
+      saveHistory(newObjs);
+
+      // Open parameter panel for adjustment
+      setSelectedModuleForParams(newModule);
+    } else if (moduleDefinition.type === "imported") {
+      // Handle imported STL/GLB models
+      console.log(`Would load model from: ${moduleDefinition.modelPath}`);
+      alert(
+        `Model ${moduleDefinition.name} will be loaded when available at ${moduleDefinition.modelPath}`
+      );
+    }
+  };
+
+  const handleModuleParameterChange = (newParams) => {
+    if (!selectedModuleForParams) return;
+
+    const moduleId = selectedModuleForParams.id;
+    const moduleDef = selectedModuleForParams.userData.moduleDefinition;
+
+    // Regenerate geometry with new parameters
+    const generatorFunc = ModuleGenerators[moduleDef.generator];
+    if (!generatorFunc) return;
+
+    const newGeometry = generatorFunc(newParams);
+
+    // Update the module
+    const newObjects = objects.map((obj) => {
+      if (obj.id === moduleId) {
+        return {
+          ...obj,
+          userData: {
+            ...obj.userData,
+            parameters: newParams,
+            geometry: newGeometry,
+          },
+        };
+      }
+      return obj;
+    });
+
+    setObjects(newObjects);
+    saveHistory(newObjects);
+
+    // Update selected module reference
+    const updatedModule = newObjects.find((obj) => obj.id === moduleId);
+    setSelectedModuleForParams(updatedModule);
+  };
+
   const handleToggleVisibility = (id) => {
     const newObjects = objects.map((obj) =>
       obj.id === id ? { ...obj, hidden: !obj.hidden } : obj
@@ -361,7 +534,24 @@ function EditorView({ initialProject, onExit }) {
         onExport={handleExport}
         onToggleBodies={() => setBodyPanelOpen((prev) => !prev)}
         bodyPanelOpen={isBodyPanelOpen}
+        onToggleModules={() => setModuleLibraryOpen((prev) => !prev)}
+        moduleLibraryOpen={isModuleLibraryOpen}
       />
+
+      {isModuleLibraryOpen && (
+        <ModuleLibraryPanel
+          onModuleSelect={handleModuleSelect}
+          onClose={() => setModuleLibraryOpen(false)}
+        />
+      )}
+
+      {selectedModuleForParams && (
+        <ModuleParameterPanel
+          module={selectedModuleForParams}
+          onParameterChange={handleModuleParameterChange}
+          onClose={() => setSelectedModuleForParams(null)}
+        />
+      )}
 
       <div className={`app-content ${drawerOpen ? "drawer-open" : ""}`}>
         <div className="canvas-container">
