@@ -10,6 +10,8 @@ import { exportToJSON, exportToSTL, exportToGLB } from "./utils/exportUtils";
 import { importFiles } from "./utils/importUtils";
 import { HistoryManager } from "./utils/historyManager";
 import * as ModuleGenerators from "./utils/moduleGenerators";
+import { findFreeSpawnPosition } from "./utils/physicsSystem";
+import * as THREE from "three";
 import {
   saveProject,
   getProject,
@@ -329,6 +331,11 @@ function EditorView({ initialProject, onExit }) {
 
       const geometry = generatorFunc(moduleDefinition.defaultParams);
 
+      const freePos = findFreeSpawnPosition(
+        geometry,
+        new THREE.Vector3(0, 0, 0)
+      );
+
       const newModule = {
         id: counter,
         name: moduleDefinition.name,
@@ -336,7 +343,7 @@ function EditorView({ initialProject, onExit }) {
         geometryType: "procedural",
         hidden: false,
         transform: {
-          position: [0, 0, 0],
+          position: [freePos.x, freePos.y, freePos.z],
           rotation: [0, 0, 0],
           scale: [1, 1, 1],
         },

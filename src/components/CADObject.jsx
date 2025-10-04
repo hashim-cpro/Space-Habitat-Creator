@@ -12,6 +12,7 @@ import {
   findClosestAttachmentPoint,
 } from "../utils/connectionSystem";
 import { checkCollision, getSafePosition } from "../utils/collisionDetection";
+import { physicsWorld, notifyGeometryChanged } from "../utils/physicsSystem";
 
 export default function CADObject({
   object,
@@ -20,7 +21,7 @@ export default function CADObject({
   transformMode,
   onTransform,
   axisLock,
-  allObjects = [], // Need all objects for snap detection
+  // allObjects prop no longer needed for collision (physicsWorld handles broad‑phase)
 }) {
   const meshRef = useRef();
   const transformControlsRef = useRef();
@@ -129,30 +130,35 @@ export default function CADObject({
     };
   }, [isSelected, isModule, scene]);
 
-  // Store object ID in userData for scene lookup
+  // Store object ID in userData for scene lookup + register with physics
   useEffect(() => {
-    if (meshRef.current) {
-      meshRef.current.userData.objectId = object.id;
+    const mesh = meshRef.current;
+    if (mesh) {
+      mesh.userData.objectId = object.id;
       if (isModule) {
-        meshRef.current.userData.isModule = true;
-        meshRef.current.userData.moduleDefinition =
-          object.userData?.moduleDefinition;
+        mesh.userData.isModule = true;
+        mesh.userData.moduleDefinition = object.userData?.moduleDefinition;
       }
+      physicsWorld.addBody(mesh);
+      physicsWorld.resolveInitialOverlap(mesh);
     }
+    return () => {
+      if (mesh) physicsWorld.removeBody(mesh);
+    };
   }, [object.id, isModule, object.userData?.moduleDefinition]);
+
+  // When procedural module geometry regenerates, inform physics
+  useEffect(() => {
+    if (meshRef.current && isModule && object.userData?.geometry) {
+      // geometry already replaced in parent; refresh bounding structures
+      notifyGeometryChanged(meshRef.current);
+    }
+  }, [isModule, object.userData?.geometry]);
 
   useFrame(() => {
     if (meshRef.current && isSelected && isDragging) {
-      // Get all other objects for collision detection
-      const otherMeshes = allObjects
-        .filter((obj) => obj.id !== object.id)
-        .map((obj) => {
-          const mesh = scene.getObjectByProperty("userData", {
-            objectId: obj.id,
-          });
-          return mesh;
-        })
-        .filter(Boolean);
+      // Use physics broad‑phase to gather potential colliders
+      const otherMeshes = physicsWorld.getPotentialColliders(meshRef.current);
 
       if (isModule) {
         // IMMEDIATE SNAP LOGIC for modules (no force – direct alignment when in range)
@@ -225,7 +231,35 @@ export default function CADObject({
       }
 
       // CONTINUOUS COLLISION PREVENTION (iterative resolution)
+      // Additionally: per-axis directional blocking: if movement along an axis causes collision, clamp that axis back.
       if (otherMeshes.length > 0) {
+        const current = meshRef.current.position.clone();
+        const last =
+          meshRef.current.userData.lastSafePosition || current.clone();
+
+        // Determine attempted delta
+        const delta = current.clone().sub(last);
+
+        if (!delta.equals(new THREE.Vector3(0, 0, 0))) {
+          // Test each axis independently (X, Y, Z). We'll build a candidate position that only keeps axes that remain collision-free.
+          const trial = last.clone();
+          const axes = ["x", "y", "z"];
+          axes.forEach((axis) => {
+            if (delta[axis] === 0) return; // no movement along this axis
+            trial[axis] += delta[axis];
+            const collision = checkCollision(
+              meshRef.current,
+              trial,
+              otherMeshes
+            );
+            if (collision) {
+              // Revert that axis only (block movement in that direction)
+              trial[axis] -= delta[axis];
+            }
+          });
+          meshRef.current.position.copy(trial);
+        }
+
         let iterations = 3; // small number of refinement passes
         while (iterations-- > 0) {
           const currentPos = meshRef.current.position.clone();
@@ -244,9 +278,12 @@ export default function CADObject({
             otherMeshes
           );
           meshRef.current.position.copy(safePos);
+          meshRef.current.updateMatrixWorld();
         }
         meshRef.current.userData.lastSafePosition =
           meshRef.current.position.clone();
+        // Update physics world with new position
+        physicsWorld.updateBody(meshRef.current);
       }
     } else if (meshRef.current && meshRef.current.material && !isDragging) {
       // Reset highlight when not dragging

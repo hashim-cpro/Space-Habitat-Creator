@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
+import * as THREE from "three";
 import CADCanvas from "./components/CADCanvas";
 import Toolbar from "./components/Toolbar";
 import PropertiesPanel from "./components/PropertiesPanel";
@@ -9,6 +10,7 @@ import { exportToJSON, exportToSTL, exportToGLB } from "./utils/exportUtils";
 import { importFiles } from "./utils/importUtils";
 import { HistoryManager } from "./utils/historyManager";
 import * as ModuleGenerators from "./utils/moduleGenerators";
+import { findFreeSpawnPosition } from "./utils/physicsSystem";
 import "./App.css";
 
 function App() {
@@ -255,6 +257,12 @@ function App() {
 
       const geometry = generatorFunc(moduleDefinition.defaultParams);
 
+      // Determine a free spawn position (avoid origin collision)
+      const freePos = findFreeSpawnPosition(
+        geometry,
+        new THREE.Vector3(0, 0, 0)
+      );
+
       const newModule = {
         id: counter,
         name: moduleDefinition.name,
@@ -262,7 +270,7 @@ function App() {
         geometryType: "procedural",
         hidden: false,
         transform: {
-          position: [0, 0, 0],
+          position: [freePos.x, freePos.y, freePos.z],
           rotation: [0, 0, 0],
           scale: [1, 1, 1],
         },
