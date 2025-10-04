@@ -1,24 +1,21 @@
 .body-panel {
-  position: fixed;
-  top: var(--header-height, 70px);
-  left: var(--sidebar-width, 128px);
-  height: calc(100vh - var(--header-height, 70px));
-  width: 280px;
-  transform: translateX(-100%);
-  transition: transform 0.3s ease;
-  background: rgba(18, 20, 24, 0.95);
-  backdrop-filter: blur(12px);
-  box-shadow: 8px 0 24px rgba(0, 0, 0, 0.35);
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  width: 100%;
+  max-width: 280px;
+  background: var(--panel-bg, rgba(18,20,24,0.92));
+  border: 1px solid var(--panel-border, rgba(255,255,255,0.08));
+  backdrop-filter: blur(12px) saturate(140%);
+  box-shadow: 0 6px 26px -4px rgba(0,0,0,0.55), 0 2px 10px -2px rgba(0,0,0,0.45);
+  border-radius: 14px;
   color: #f6f7fb;
   display: flex;
   flex-direction: column;
-  z-index: 110;
+  opacity:0;
+  transform: translateY(4px) scale(.985);
+  animation: fadeInPanel var(--fade-duration,160ms) ease forwards;
+  overflow:hidden;
 }
 
-.body-panel.open {
-  transform: translateX(0);
-}
+.body-panel.closing { animation: fadeOutPanel var(--fade-duration,160ms) ease forwards; }
 
 .body-panel-header {
   display: flex;

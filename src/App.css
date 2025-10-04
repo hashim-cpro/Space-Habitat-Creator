@@ -5,8 +5,11 @@
 }
 
 :root {
-  --header-height: 72px;
-  --sidebar-width: 128px;
+  --header-height: 60px; /* slightly slimmer */
+  --floating-gap: 14px;
+  --panel-bg: rgba(18, 20, 26, 0.88);
+  --panel-border: rgba(255, 255, 255, 0.08);
+  --fade-duration: 160ms;
 }
 
 body {
@@ -20,24 +23,30 @@ body {
 }
 
 .app {
+  position: fixed;
+  inset: 0;
   width: 100vw;
   height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background: #1a1a1a;
+  background: #0f1116;
   color: #fff;
+  overflow: hidden;
 }
 
 .app-header {
-  background: rgba(24, 27, 34, 0.92);
-  backdrop-filter: blur(10px);
-  padding: 14px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height);
+  background: rgba(10, 12, 16, 0.72);
+  backdrop-filter: blur(14px) saturate(130%);
+  padding: 8px 18px;
+  border-bottom: 1px solid var(--panel-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-  min-height: var(--header-height);
+  z-index: 1000;
+  pointer-events: auto;
 }
 
 .app-header h1 {
@@ -140,49 +149,91 @@ body {
   border: 1px solid rgba(116, 192, 145, 0.45);
 }
 
+/* Full-screen canvas container (fills viewport under header) */
 .app-content {
-  flex: 1;
-  display: flex;
+  position: absolute;
+  top: var(--header-height);
+  left: 0;
+  right: 0;
+  bottom: 0;
   overflow: hidden;
-  position: relative;
-  transition: padding-right 0.3s ease;
-  margin-left: var(--sidebar-width);
+  display: block;
 }
 
 .canvas-container {
-  flex: 1;
-  position: relative;
+  position: absolute;
+  inset: 0;
   overflow: hidden;
-  height: calc(100vh - var(--header-height));
+  background: radial-gradient(circle at 60% 40%, #161a23, #0d0f13 70%);
 }
 
-.app-content.drawer-open {
-  padding-right: 360px;
-}
+/* Drawer logic removed in favor of floating panel */
 
-.properties-drawer {
+/* Properties drawer replaced by floating panel variant (see .floating-panel classes) */
+
+/* Generic floating overlay base */
+.floating-panel {
   position: fixed;
-  top: var(--header-height);
-  right: 0;
-  width: 360px;
-  height: calc(100vh - var(--header-height));
-  transform: translateX(100%);
-  transition: transform 0.3s ease;
-  background: rgba(16, 18, 24, 0.92);
-  border-left: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: -12px 0 32px rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(12px);
-  z-index: 120;
-  padding: 20px 22px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  backdrop-filter: blur(12px) saturate(140%);
+  box-shadow: 0 6px 28px -4px rgba(0,0,0,0.6), 0 2px 10px -2px rgba(0,0,0,0.45);
+  border-radius: 14px;
+  padding: 16px 18px;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  overflow-x: hidden;
+  opacity: 0;
+  transform: translateY(4px) scale(.98);
+  animation: fadeInPanel var(--fade-duration) ease forwards;
 }
 
-.properties-drawer.open {
-  transform: translateX(0);
+.floating-panel.closing {
+  animation: fadeOutPanel var(--fade-duration) ease forwards;
 }
+
+@keyframes fadeInPanel {
+  to {opacity:1; transform: translateY(0) scale(1);} }
+@keyframes fadeOutPanel {
+  to {opacity:0; transform: translateY(4px) scale(.98);} }
+
+/* Specific placements */
+.panel-right {
+  top: calc(var(--header-height) + var(--floating-gap));
+  right: var(--floating-gap);
+  width: 360px;
+  max-height: calc(100vh - var(--header-height) - (var(--floating-gap) * 2));
+  overflow-y: auto;
+}
+
+.panel-left-stack {
+  position: fixed;
+  top: calc(var(--header-height) + var(--floating-gap));
+  left: var(--floating-gap);
+  display: flex;
+  flex-direction: column;
+  gap: var(--floating-gap);
+  z-index: 900;
+  pointer-events: none; /* children restore */
+}
+
+.panel-left-stack > * { pointer-events: auto; }
+
+/* Mini vertical toolbar styling override */
+.floating-toolbar {
+  width: 120px;
+  padding: 12px 10px;
+  gap: 12px;
+}
+
+/* Body panel sized variant */
+.floating-body-panel { width: 280px; }
+
+/* Subtle fade utility for simple elements */
+.fade-in {
+  animation: fadeOnly var(--fade-duration) ease forwards;
+  opacity: 0;
+}
+@keyframes fadeOnly { to { opacity:1; } }
 
 /* Keyboard shortcuts hint */
 .shortcuts-hint {
@@ -222,45 +273,11 @@ body {
 }
 
 @media (max-width: 768px) {
-  :root {
-    --sidebar-width: 80px;
-  }
-
-  .app-header {
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
-    padding: 12px 16px;
-  }
-
-  .app-header h1 {
-    font-size: 18px;
-  }
-
-  .header-controls {
-    width: 100%;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .axis-lock-group {
-    order: -1;
-  }
-
-  .object-count {
-    width: 100%;
-    text-align: center;
-  }
-
-  .properties-drawer {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .app-content.drawer-open {
-    padding-right: 0;
-  }
+  .app-header { padding: 10px 14px; height: var(--header-height); }
+  .panel-right { width: min(92vw, 380px); right: 4%; }
+  .floating-toolbar { flex-direction: row; width: auto; }
+  .panel-left-stack { left: 50%; transform: translateX(-50%); flex-direction: row; }
+  .floating-body-panel { width: min(85vw, 320px); }
 }
 
 /* Touch device optimizations */
