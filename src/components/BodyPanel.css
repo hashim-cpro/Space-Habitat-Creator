@@ -1,0 +1,126 @@
+.body-panel {
+  position: fixed;
+  top: var(--header-height, 70px);
+  left: var(--sidebar-width, 128px);
+  height: calc(100vh - var(--header-height, 70px));
+  width: 280px;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  background: rgba(18, 20, 24, 0.95);
+  backdrop-filter: blur(12px);
+  box-shadow: 8px 0 24px rgba(0, 0, 0, 0.35);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f6f7fb;
+  display: flex;
+  flex-direction: column;
+  z-index: 110;
+}
+
+.body-panel.open {
+  transform: translateX(0);
+}
+
+.body-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.body-panel-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.body-panel-close {
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+  border: none;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.body-panel-close:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.body-panel-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.body-panel-empty {
+  margin: 0;
+  padding: 28px 12px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.95rem;
+}
+
+.body-row {
+  display: grid;
+  grid-template-columns: 42px 1fr 32px;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.body-row.selected {
+  box-shadow: inset 0 0 0 1px #5b8efc;
+  background: rgba(91, 142, 252, 0.14);
+}
+
+.body-row.hidden {
+  opacity: 0.6;
+}
+
+.body-row button {
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: inherit;
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.body-row button:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.body-row-visibility {
+  font-size: 1.1rem;
+}
+
+.body-row-name {
+  justify-content: flex-start;
+  font-weight: 500;
+}
+
+.body-row-delete {
+  color: #ff7b7b;
+  font-size: 1rem;
+}
+
+.body-row-delete:hover {
+  background: rgba(255, 107, 107, 0.18);
+}
