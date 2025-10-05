@@ -12,6 +12,7 @@ import { HistoryManager } from "./utils/historyManager";
 import * as ModuleGenerators from "./utils/moduleGenerators";
 import { findFreeSpawnPosition } from "./utils/physicsSystem";
 import "./App.css";
+// Vercel Analytics: Removed Next.js-specific component import. We inject the script in main.jsx for Vite.
 
 // Helper function to recreate geometry from parameters
 function recreateGeometry(obj) {
