@@ -56,9 +56,12 @@ export default function Toolbar({
                 transformMode === tm.mode ? "active" : ""
               }`}
               onClick={() => onSetTransformMode(tm.mode)}
+              style={{ width: "90px" }}
             >
               <span className="btn-icon">{tm.icon}</span>
-              <span className="btn-label">{tm.label}</span>
+              <span className="btn-label" style={{ fontSize: "11px" }}>
+                {tm.label}
+              </span>
             </button>
           ))}
         </div>
@@ -69,9 +72,12 @@ export default function Toolbar({
         <button
           className="toolbar-btn wide"
           onClick={() => fileInputRef.current?.click()}
+          style={{ width: "90px" }}
         >
           <span className="btn-icon">⬆</span>
-          <span className="btn-label">Import</span>
+          <span className="btn-label" style={{ fontSize: "13px" }}>
+            Import
+          </span>
         </button>
         <input
           ref={fileInputRef}
@@ -94,17 +100,23 @@ export default function Toolbar({
           className="toolbar-btn"
           onClick={onDuplicate}
           disabled={!selectedCount}
+          style={{ width: "90px" }}
         >
           <span className="btn-icon">⧉</span>
-          <span className="btn-label">Duplicate</span>
+          <span className="btn-label" style={{ fontSize: "13px" }}>
+            Duplicate
+          </span>
         </button>
         <button
           className="toolbar-btn danger"
           onClick={onDelete}
           disabled={!selectedCount}
+          style={{ width: "90px" }}
         >
           <span className="btn-icon">✖</span>
-          <span className="btn-label">Delete</span>
+          <span className="btn-label" style={{ fontSize: "13px" }}>
+            Delete
+          </span>
         </button>
         <span className="selection-count">
           {selectedCount ? `${selectedCount} selected` : "No selection"}

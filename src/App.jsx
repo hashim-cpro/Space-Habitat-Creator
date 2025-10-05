@@ -495,7 +495,7 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>🏗️ Habitat Model Viewer</h1>
+        <h1>🛰️ Nexus Habitat Creator</h1>
         <div className="header-controls">
           <div className="undo-redo-group">
             <button

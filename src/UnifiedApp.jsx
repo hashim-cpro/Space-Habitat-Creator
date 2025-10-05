@@ -117,6 +117,7 @@ function UnifiedApp() {
         height: "100vh",
         display: "flex",
         flexDirection: "column",
+        position: "relative",
       }}
     >
       {/* Mode Switch Header */}
@@ -124,17 +125,20 @@ function UnifiedApp() {
         style={{
           display: "flex",
           alignItems: "center",
+          gap: "30px",
           justifyContent: "space-between",
           padding: "10px 20px",
-          backgroundColor: "#1a1a1a",
           borderBottom: "2px solid #333",
           zIndex: 1000,
+          position: "fixed",
+          top: "65px",
+          right: "7px"
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <h2 style={{ margin: 0, color: "#fff", fontSize: "18px" }}>
+          {/* <h2 style={{ margin: 0, color: "#fff", fontSize: "18px" }}>
             🚀 Habitat Creator
-          </h2>
+          </h2> */}
           {mode === "interior" && currentHabitat && (
             <span
               style={{

@@ -69,20 +69,25 @@ export default function CADObject({
     if (object.geometry && object.geometry.isBufferGeometry) {
       return object.geometry;
     }
-    
+
     // Handle procedural modules
     if (object.type === "module" && object.userData?.geometry) {
       return object.userData.geometry;
     }
 
     // Handle custom/imported geometry in parameters
-    if (object.parameters?.geometry && object.parameters.geometry.isBufferGeometry) {
+    if (
+      object.parameters?.geometry &&
+      object.parameters.geometry.isBufferGeometry
+    ) {
       return object.parameters.geometry;
     }
 
     // Validate parameters exist for primitive shapes
     if (!object.parameters) {
-      console.error(`Object ${object.name} (${object.id}) missing parameters, cannot create geometry`);
+      console.error(
+        `Object ${object.name} (${object.id}) missing parameters, cannot create geometry`
+      );
       return new THREE.BoxGeometry(1, 1, 1); // Fallback
     }
 
@@ -122,13 +127,16 @@ export default function CADObject({
           object.parameters.height || 1
         );
       case "custom":
-        console.error(`Custom geometry for ${object.name} not found, using fallback`);
+        console.error(
+          `Custom geometry for ${object.name} not found, using fallback`
+        );
         return new THREE.BoxGeometry(1, 1, 1);
       default:
         console.warn(`Unknown object type ${object.type}, using box geometry`);
         return new THREE.BoxGeometry(1, 1, 1);
     }
-  }, [object]);  useEffect(() => {
+  }, [object]);
+  useEffect(() => {
     if (object.type === "custom") return undefined;
     return () => {
       geometry.dispose?.();
