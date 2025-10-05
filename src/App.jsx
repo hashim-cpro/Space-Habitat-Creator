@@ -24,6 +24,7 @@ function recreateGeometry(obj) {
       return {
         ...obj,
         geometry: geometry,
+        parameters: obj.userData.parameters || obj.parameters,
         userData: {
           ...obj.userData,
           geometry: geometry,
@@ -32,8 +33,21 @@ function recreateGeometry(obj) {
     }
   }
 
-  // For primitive shapes, geometry will be recreated in CADObject component
-  // No need to store geometry for these
+  // For imported/custom geometry that was lost during save, skip it
+  if (obj.type === "custom") {
+    console.warn(
+      `Cannot recreate custom/imported geometry for ${obj.name}. Object will be skipped. Re-import the file.`
+    );
+    return null;
+  }
+
+  // For primitive shapes, ensure they have valid parameters
+  // The geometry will be created by CADObject component
+  if (!obj.parameters) {
+    console.warn(`Object ${obj.name} missing parameters, skipping`);
+    return null;
+  }
+
   return obj;
 }
 
@@ -64,22 +78,34 @@ function App() {
       try {
         const parsed = JSON.parse(savedData);
         if (parsed.objects && Array.isArray(parsed.objects)) {
-          // Recreate geometry for objects that need it
-          const objectsWithGeometry = parsed.objects.map((obj) =>
-            recreateGeometry(obj)
-          );
+          console.log("Raw objects from localStorage:", parsed.objects.length);
+          // Recreate geometry for objects that need it, filter out nulls (custom objects)
+          const objectsWithGeometry = parsed.objects
+            .map((obj) => {
+              const recreated = recreateGeometry(obj);
+              if (!recreated) {
+                console.log(
+                  `Filtered out object: ${obj.name} (type: ${obj.type})`
+                );
+              }
+              return recreated;
+            })
+            .filter((obj) => obj !== null);
           setObjects(objectsWithGeometry);
           setObjectIdCounter(
             parsed.objectIdCounter || parsed.objects.length + 1
           );
           console.log(
-            "Loaded exterior design from localStorage",
-            objectsWithGeometry.length
+            "Loaded exterior design from localStorage:",
+            objectsWithGeometry.length,
+            "objects"
           );
         }
       } catch (error) {
         console.error("Failed to load saved data:", error);
       }
+    } else {
+      console.log("No saved data found in localStorage");
     }
   }, []);
 

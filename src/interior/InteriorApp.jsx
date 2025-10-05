@@ -6,11 +6,56 @@ import { useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Grid } from "@react-three/drei";
 import * as THREE from "three";
+import * as ModuleGenerators from "../utils/moduleGenerators";
 import "./InteriorApp.css";
+
+// Helper function to recreate geometry from parameters (same as in App.jsx)
+function recreateGeometry(obj) {
+  // If it's a module with a generator, regenerate it
+  if (obj.type === "module" && obj.userData?.moduleDefinition) {
+    const generatorFunc =
+      ModuleGenerators[obj.userData.moduleDefinition.generator];
+    if (generatorFunc) {
+      const geometry = generatorFunc(obj.userData.parameters || obj.parameters);
+      return {
+        ...obj,
+        geometry: geometry,
+        parameters: obj.userData.parameters || obj.parameters,
+        userData: {
+          ...obj.userData,
+          geometry: geometry,
+        },
+      };
+    }
+  }
+
+  // For imported/custom geometry that was lost during save, skip it
+  if (obj.type === "custom") {
+    console.warn(
+      `Cannot recreate custom/imported geometry for ${obj.name}. Object will be skipped.`
+    );
+    return null;
+  }
+
+  // For primitive shapes, ensure they have valid parameters
+  if (!obj.parameters) {
+    console.warn(`Object ${obj.name} missing parameters, skipping`);
+    return null;
+  }
+
+  // For primitive shapes, geometry will be created in the component
+  return obj;
+}
 
 // Component to render a single object in wireframe
 function WireframeObject({ obj }) {
   const createGeometry = (type, parameters) => {
+    // Ensure parameters exist
+    if (!parameters) {
+      console.error(`Missing parameters for ${type} geometry`);
+      return new THREE.BoxGeometry(1, 1, 1);
+    }
+
     switch (type) {
       case "box":
         return new THREE.BoxGeometry(
@@ -50,15 +95,19 @@ function WireframeObject({ obj }) {
     }
   };
 
-  // Get geometry from object
+  // Get geometry from object - prioritize actual geometry objects
   let geometry;
-  if (obj.geometry) {
+  if (obj.geometry && obj.geometry.isBufferGeometry) {
     geometry = obj.geometry;
-  } else if (obj.parameters?.geometry) {
+  } else if (
+    obj.parameters?.geometry &&
+    obj.parameters.geometry.isBufferGeometry
+  ) {
     geometry = obj.parameters.geometry;
-  } else if (obj.userData?.geometry) {
+  } else if (obj.userData?.geometry && obj.userData.geometry.isBufferGeometry) {
     geometry = obj.userData.geometry;
   } else {
+    // Fallback: create geometry from parameters
     geometry = createGeometry(obj.type, obj.parameters || {});
   }
 
@@ -66,20 +115,46 @@ function WireframeObject({ obj }) {
   const rotation = obj.transform?.rotation || [0, 0, 0];
   const scale = obj.transform?.scale || [1, 1, 1];
 
+  // Don't render if geometry is invalid
+  if (!geometry || !geometry.isBufferGeometry) {
+    console.warn("Invalid geometry for object:", obj.name, obj);
+    return null;
+  }
+
+  // Create edges geometry for wireframe
+  const edgesGeometry = new THREE.EdgesGeometry(geometry, 15); // 15 degree threshold for edges
+
   return (
-    <mesh
-      position={position}
-      rotation={rotation}
-      scale={scale}
-      geometry={geometry}
-    >
-      <meshBasicMaterial
-        color={obj.material?.color || "#ffffff"}
-        wireframe={true}
-        transparent={true}
-        opacity={0.8}
-      />
-    </mesh>
+    <group>
+      {/* Solid semi-transparent mesh */}
+      <mesh
+        position={position}
+        rotation={rotation}
+        scale={scale}
+        geometry={geometry}
+      >
+        <meshStandardMaterial
+          color={obj.material?.color || "#cccccc"}
+          transparent={true}
+          opacity={0.15}
+          side={THREE.DoubleSide}
+          depthWrite={false}
+        />
+      </mesh>
+      {/* Wireframe overlay for edges */}
+      <lineSegments
+        position={position}
+        rotation={rotation}
+        scale={scale}
+        geometry={edgesGeometry}
+      >
+        <lineBasicMaterial
+          color={obj.material?.color || "#ffffff"}
+          transparent={true}
+          opacity={0.8}
+        />
+      </lineSegments>
+    </group>
   );
 }
 
@@ -94,10 +169,14 @@ function InteriorApp() {
         try {
           const parsed = JSON.parse(savedData);
           if (parsed.objects && Array.isArray(parsed.objects)) {
-            setExteriorObjects(parsed.objects);
+            // Recreate geometry for all objects, filter out nulls
+            const objectsWithGeometry = parsed.objects
+              .map((obj) => recreateGeometry(obj))
+              .filter((obj) => obj !== null);
+            setExteriorObjects(objectsWithGeometry);
             console.log(
               "Loaded exterior objects for interior view:",
-              parsed.objects.length
+              objectsWithGeometry.length
             );
           }
         } catch (error) {
@@ -148,8 +227,10 @@ function InteriorApp() {
         style={{ width: "100%", height: "100%" }}
       >
         <color attach="background" args={["#0a0a0a"]} />
-        <ambientLight intensity={0.5} />
-        <pointLight position={[10, 10, 10]} />
+        <ambientLight intensity={0.6} />
+        <directionalLight position={[10, 10, 10]} intensity={0.8} />
+        <directionalLight position={[-10, -10, -10]} intensity={0.3} />
+        <pointLight position={[0, 20, 0]} intensity={0.5} />
 
         {/* Grid */}
         <Grid

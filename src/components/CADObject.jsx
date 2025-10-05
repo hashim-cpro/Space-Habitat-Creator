@@ -66,63 +66,69 @@ export default function CADObject({
 
   const geometry = useMemo(() => {
     // Check for geometry in priority order: root > userData > parameters > create new
-    if (object.geometry) {
+    if (object.geometry && object.geometry.isBufferGeometry) {
       return object.geometry;
     }
-
+    
     // Handle procedural modules
     if (object.type === "module" && object.userData?.geometry) {
       return object.userData.geometry;
     }
 
     // Handle custom/imported geometry in parameters
-    if (object.parameters?.geometry) {
+    if (object.parameters?.geometry && object.parameters.geometry.isBufferGeometry) {
       return object.parameters.geometry;
+    }
+
+    // Validate parameters exist for primitive shapes
+    if (!object.parameters) {
+      console.error(`Object ${object.name} (${object.id}) missing parameters, cannot create geometry`);
+      return new THREE.BoxGeometry(1, 1, 1); // Fallback
     }
 
     // Generate primitive geometry based on type
     switch (object.type) {
       case "box":
         return new THREE.BoxGeometry(
-          object.parameters.width,
-          object.parameters.height,
-          object.parameters.depth
+          object.parameters.width || 1,
+          object.parameters.height || 1,
+          object.parameters.depth || 1
         );
       case "sphere":
-        return new THREE.SphereGeometry(object.parameters.radius, 32, 32);
+        return new THREE.SphereGeometry(object.parameters.radius || 1, 32, 32);
       case "cylinder":
         return new THREE.CylinderGeometry(
-          object.parameters.radiusTop || object.parameters.radius,
-          object.parameters.radiusBottom || object.parameters.radius,
-          object.parameters.height,
+          object.parameters.radiusTop || object.parameters.radius || 1,
+          object.parameters.radiusBottom || object.parameters.radius || 1,
+          object.parameters.height || 1,
           32
         );
       case "cone":
         return new THREE.ConeGeometry(
-          object.parameters.radius,
-          object.parameters.height,
+          object.parameters.radius || 1,
+          object.parameters.height || 1,
           32
         );
       case "torus":
         return new THREE.TorusGeometry(
-          object.parameters.radius,
-          object.parameters.tube,
+          object.parameters.radius || 1,
+          object.parameters.tube || 0.4,
           16,
           100
         );
       case "plane":
         return new THREE.PlaneGeometry(
-          object.parameters.width,
-          object.parameters.height
+          object.parameters.width || 1,
+          object.parameters.height || 1
         );
       case "custom":
-        return object.parameters.geometry || new THREE.BoxGeometry(1, 1, 1);
+        console.error(`Custom geometry for ${object.name} not found, using fallback`);
+        return new THREE.BoxGeometry(1, 1, 1);
       default:
+        console.warn(`Unknown object type ${object.type}, using box geometry`);
         return new THREE.BoxGeometry(1, 1, 1);
     }
-  }, [object]);
-
-  useEffect(() => {
+  }, [object]);  useEffect(() => {
     if (object.type === "custom") return undefined;
     return () => {
       geometry.dispose?.();
