@@ -32,16 +32,21 @@ export function exportToSTL(objects) {
   objects.forEach((obj, index) => {
     let geometry;
 
-    // Handle imported mesh geometry - check both locations
-    if (obj.parameters?.geometry) {
-      geometry = obj.parameters.geometry.clone();
-      console.log(`Object ${index}: Using parameters.geometry`);
-    } else if (obj.geometry) {
+    // Handle geometry in priority order: root > parameters > userData > create new
+    if (obj.geometry) {
       geometry = obj.geometry.clone();
-      console.log(`Object ${index}: Using root geometry`);
+      console.log(`Object ${index}: Using root geometry for ${obj.name}`);
+    } else if (obj.parameters?.geometry) {
+      geometry = obj.parameters.geometry.clone();
+      console.log(`Object ${index}: Using parameters.geometry for ${obj.name}`);
+    } else if (obj.userData?.geometry) {
+      geometry = obj.userData.geometry.clone();
+      console.log(`Object ${index}: Using userData.geometry for ${obj.name}`);
     } else {
       geometry = createGeometry(obj.type, obj.parameters);
-      console.log(`Object ${index}: Created ${obj.type} geometry`);
+      console.log(
+        `Object ${index}: Created ${obj.type} geometry for ${obj.name}`
+      );
     }
 
     // Ensure geometry is properly indexed and has normals
@@ -111,17 +116,22 @@ export function exportToGLB(objects) {
   const scene = new THREE.Scene();
 
   objects.forEach((obj, index) => {
-    // Handle imported mesh geometry - check both locations
+    // Handle geometry in priority order: root > parameters > userData > create new
     let geometry;
-    if (obj.parameters?.geometry) {
-      geometry = obj.parameters.geometry.clone();
-      console.log(`Object ${index}: Using parameters.geometry`);
-    } else if (obj.geometry) {
+    if (obj.geometry) {
       geometry = obj.geometry.clone();
-      console.log(`Object ${index}: Using root geometry`);
+      console.log(`Object ${index}: Using root geometry for ${obj.name}`);
+    } else if (obj.parameters?.geometry) {
+      geometry = obj.parameters.geometry.clone();
+      console.log(`Object ${index}: Using parameters.geometry for ${obj.name}`);
+    } else if (obj.userData?.geometry) {
+      geometry = obj.userData.geometry.clone();
+      console.log(`Object ${index}: Using userData.geometry for ${obj.name}`);
     } else {
       geometry = createGeometry(obj.type, obj.parameters);
-      console.log(`Object ${index}: Created ${obj.type} geometry`);
+      console.log(
+        `Object ${index}: Created ${obj.type} geometry for ${obj.name}`
+      );
     }
 
     // Ensure normals exist

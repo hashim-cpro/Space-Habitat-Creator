@@ -13,6 +13,30 @@ import * as ModuleGenerators from "./utils/moduleGenerators";
 import { findFreeSpawnPosition } from "./utils/physicsSystem";
 import "./App.css";
 
+// Helper function to recreate geometry from parameters
+function recreateGeometry(obj) {
+  // If it's a module with a generator, regenerate it
+  if (obj.type === "module" && obj.userData?.moduleDefinition) {
+    const generatorFunc =
+      ModuleGenerators[obj.userData.moduleDefinition.generator];
+    if (generatorFunc) {
+      const geometry = generatorFunc(obj.userData.parameters || obj.parameters);
+      return {
+        ...obj,
+        geometry: geometry,
+        userData: {
+          ...obj.userData,
+          geometry: geometry,
+        },
+      };
+    }
+  }
+
+  // For primitive shapes, geometry will be recreated in CADObject component
+  // No need to store geometry for these
+  return obj;
+}
+
 function App() {
   const [objects, setObjects] = useState([]);
   const [selectedObjectIds, setSelectedObjectIds] = useState([]); // Multi-select support
@@ -32,6 +56,65 @@ function App() {
   useEffect(() => {
     objectsRef.current = objects;
   }, [objects]);
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    const savedData = localStorage.getItem("habitat-creator-exterior");
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData);
+        if (parsed.objects && Array.isArray(parsed.objects)) {
+          // Recreate geometry for objects that need it
+          const objectsWithGeometry = parsed.objects.map((obj) =>
+            recreateGeometry(obj)
+          );
+          setObjects(objectsWithGeometry);
+          setObjectIdCounter(
+            parsed.objectIdCounter || parsed.objects.length + 1
+          );
+          console.log(
+            "Loaded exterior design from localStorage",
+            objectsWithGeometry.length
+          );
+        }
+      } catch (error) {
+        console.error("Failed to load saved data:", error);
+      }
+    }
+  }, []);
+
+  // Auto-save to localStorage every 3 seconds
+  useEffect(() => {
+    const saveInterval = setInterval(() => {
+      if (objects.length > 0) {
+        // Serialize objects, but skip Three.js geometry objects (can't be stringified)
+        const serializableObjects = objects.map((obj) => {
+          const { geometry: _geometry, ...rest } = obj;
+          // For modules, ensure parameters are at root level for recreation
+          if (obj.type === "module" && obj.userData?.parameters) {
+            return {
+              ...rest,
+              parameters: obj.userData.parameters,
+            };
+          }
+          return rest;
+        });
+
+        const dataToSave = {
+          objects: serializableObjects,
+          objectIdCounter,
+          timestamp: Date.now(),
+        };
+        localStorage.setItem(
+          "habitat-creator-exterior",
+          JSON.stringify(dataToSave)
+        );
+        console.log("Auto-saved exterior design");
+      }
+    }, 3000);
+
+    return () => clearInterval(saveInterval);
+  }, [objects, objectIdCounter]);
 
   const visibleObjects = useMemo(
     () => objects.filter((obj) => !obj.hidden),
@@ -229,6 +312,8 @@ function App() {
         id: counter,
         hidden: false,
         ...bp,
+        // Ensure geometry is in both locations for export compatibility
+        geometry: bp.geometry || bp.parameters?.geometry,
       };
       newObjs.push(obj);
       newIds.push(counter);
@@ -284,6 +369,8 @@ function App() {
           selectedColor: "#00ff88",
           hoverColor: "#00ddff",
         },
+        parameters: moduleDefinition.defaultParams,
+        geometry: geometry,
         userData: {
           isModule: true,
           moduleDefinition: moduleDefinition,
@@ -328,6 +415,8 @@ function App() {
       if (obj.id === moduleId) {
         return {
           ...obj,
+          parameters: newParams,
+          geometry: newGeometry,
           userData: {
             ...obj.userData,
             parameters: newParams,

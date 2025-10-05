@@ -65,11 +65,22 @@ export default function CADObject({
   }, [material]);
 
   const geometry = useMemo(() => {
+    // Check for geometry in priority order: root > userData > parameters > create new
+    if (object.geometry) {
+      return object.geometry;
+    }
+
     // Handle procedural modules
     if (object.type === "module" && object.userData?.geometry) {
       return object.userData.geometry;
     }
 
+    // Handle custom/imported geometry in parameters
+    if (object.parameters?.geometry) {
+      return object.parameters.geometry;
+    }
+
+    // Generate primitive geometry based on type
     switch (object.type) {
       case "box":
         return new THREE.BoxGeometry(
@@ -81,8 +92,8 @@ export default function CADObject({
         return new THREE.SphereGeometry(object.parameters.radius, 32, 32);
       case "cylinder":
         return new THREE.CylinderGeometry(
-          object.parameters.radiusTop,
-          object.parameters.radiusBottom,
+          object.parameters.radiusTop || object.parameters.radius,
+          object.parameters.radiusBottom || object.parameters.radius,
           object.parameters.height,
           32
         );
@@ -105,7 +116,7 @@ export default function CADObject({
           object.parameters.height
         );
       case "custom":
-        return object.parameters.geometry;
+        return object.parameters.geometry || new THREE.BoxGeometry(1, 1, 1);
       default:
         return new THREE.BoxGeometry(1, 1, 1);
     }
