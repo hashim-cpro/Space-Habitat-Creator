@@ -83,18 +83,6 @@ Early-stage concept tool: keep UI lean, iteration fast, semantics rich. Prioriti
 - Instancing for repetitive fixtures (beds, racks, lockers)
 - Constraint solver (alignment, docking ring validation)
 
-## 🤖 AI Assistance Disclosure
-
-Brief, transparent usage:
-
-- Submission + README wording refinement (human concepts; AI tightened phrasing)
-- Lightweight code autocomplete suggestions (React component scaffolds, small utilities) — all reviewed & edited
-- No AI-generated images, audio, or NASA branding; no autonomous layout or optimization
-
-## 👥 Team & Attribution
-
-Built by a local hackathon team for the NASA Space Apps Challenge. All architectural/feature decisions, Functional Zone definitions, and module taxonomy are original interpretations informed by publicly available NASA resources (listed above). No official endorsement implied.
-
 ## ⚡ Quick Start
 
 ```bash
@@ -130,14 +118,4 @@ npm run preview
 | Axis lock toggle | X / Y / Z                         |
 | Clear axis lock  | Esc                               |
 
-## 🔐 Licensing & NASA Use Disclaimer
 
-This project references NASA-authored technical papers for design reasoning only. It does **not** use NASA logos, flags, or mission insignia. Any future NASA-related data integrations will follow branding and usage policies.
-
-## � Contributing (Post-Challenge)
-
-Potential future contributions: optimization algorithms, ergonomic analytics, collaborative editing layer, UI refinement. Open to structured contributions after judging window.
-
----
-
-“Design fast, label intent early, optimize later.” — Team Nexus
