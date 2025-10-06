@@ -1,14 +1,3 @@
-# Habitat Module Models
-
-This folder contains STL/GLB models for **complex, non-parametric** modules.
-
-## 🎯 What Goes Here vs Code-Generated
-
-### ✅ **IMPORT AS STL/GLB FILES** (Put in this folder)
-
-These are fixed-design modules with detailed geometry that can't be easily parameterized:
-
-#### **Priority 1: Essential Models**
 
 1. **`airlock-detailed.stl`**
 
@@ -66,26 +55,6 @@ These are fixed-design modules with detailed geometry that can't be easily param
    - Reference size: 2m × 1m × 2m rack unit
    - Features: Multiple trays, lighting, plumbing
    - Can be placed inside modules (not external)
-
----
-
-## ❌ **DO NOT MODEL THESE** (Code will generate them)
-
-These are **procedurally generated** in code with adjustable parameters:
-
-- ✖ **Rigid Cylinders** (any diameter/length)
-- ✖ **Inflatable Cylinders** (any diameter/length)
-- ✖ **Domes/Hemispheres** (any radius)
-- ✖ **Simple Tunnels** (any length/diameter)
-- ✖ **Basic Connectors** (simple docking ports)
-- ✖ **Multi-level Cylinders** (procedural floors)
-
-These will be generated with functions like:
-
-```javascript
-generateCylinder({ diameter: 8, length: 12 });
-generateDome({ radius: 4 });
-```
 
 ---
 

@@ -35,7 +35,7 @@ export default function BodyPanel({
                   onClick={() => onToggleVisibility(body.id)}
                   title={body.hidden ? "Show" : "Hide"}
                 >
-                  {body.hidden ? "🙈" : "👁"}
+                  {body.hidden ? "Hidden" : "Visible"}
                 </button>
                 <button
                   className="body-row-name"
@@ -49,7 +49,7 @@ export default function BodyPanel({
                   onClick={() => onDelete(body.id)}
                   title="Delete"
                 >
-                  ✖
+                  ×
                 </button>
               </div>
             );

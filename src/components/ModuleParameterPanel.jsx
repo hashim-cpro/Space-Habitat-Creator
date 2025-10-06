@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./ModuleParameterPanel.css";
 
-/**
- * ModuleParameterPanel - Adjustable parameters for selected module
- * Shows up when a procedural module is selected
- */
+
 export default function ModuleParameterPanel({
   module,
   onParameterChange,
@@ -25,7 +22,6 @@ export default function ModuleParameterPanel({
 
   const def = module.userData.moduleDefinition;
 
-  // Only show for procedural modules
   if (def.type !== "procedural" || !def.adjustableParams) {
     return null;
   }
@@ -39,7 +35,7 @@ export default function ModuleParameterPanel({
   return (
     <div className="module-parameter-panel">
       <div className="param-header">
-        <h3>⚙️ Module Parameters</h3>
+        <h3>Module Parameters</h3>
         <button className="close-btn" onClick={onClose} title="Close">
           ✕
         </button>
@@ -82,9 +78,7 @@ export default function ModuleParameterPanel({
   );
 }
 
-/**
- * ParamControl - Individual parameter slider/input
- */
+
 function ParamControl({ param, value, onChange }) {
   const [localValue, setLocalValue] = useState(value);
 

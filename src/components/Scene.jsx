@@ -16,7 +16,6 @@ export default function Scene({
           object={obj}
           isSelected={selectedObjectIds.includes(obj.id)}
           onSelect={(e) => {
-            // Multi-select with Ctrl (Windows/Linux) or Cmd (Mac)
             const isMultiSelect = e.ctrlKey || e.metaKey || e.shiftKey;
             onSelectObject(obj.id, isMultiSelect);
           }}

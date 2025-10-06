@@ -9,7 +9,6 @@ function UnifiedApp() {
   const [habitatModules, setHabitatModules] = useState({});
   const [exteriorObjects, setExteriorObjects] = useState([]);
 
-  // Load exterior objects from localStorage
   useEffect(() => {
     const loadExteriorObjects = () => {
       const savedData = localStorage.getItem("habitat-creator-exterior");
@@ -25,10 +24,8 @@ function UnifiedApp() {
       }
     };
 
-    // Load initially
     loadExteriorObjects();
 
-    // Poll for changes when in interior mode
     const interval = setInterval(() => {
       if (mode === "interior") {
         loadExteriorObjects();
@@ -38,18 +35,15 @@ function UnifiedApp() {
     return () => clearInterval(interval);
   }, [mode]);
 
-  // Extract habitat modules from exterior objects
   const availableHabitats = useMemo(() => {
     const habitats = exteriorObjects
       .filter((obj) => {
-        // Check if object is a cylindrical habitat module
         const isCylinder =
           obj.type === "cylinder" ||
           obj.moduleType === "habitat" ||
           obj.moduleType === "cylindrical-habitat" ||
           (obj.geometry && obj.geometry.type === "cylinder");
 
-        // Must have valid dimensions
         const hasValidDimensions =
           obj.parameters &&
           obj.parameters.radius > 0 &&
@@ -67,7 +61,6 @@ function UnifiedApp() {
         moduleType: obj.moduleType || "habitat",
       }));
 
-    // If no habitats found, create a default one for testing
     if (habitats.length === 0) {
       return [
         {
@@ -84,7 +77,6 @@ function UnifiedApp() {
     return habitats;
   }, [exteriorObjects]);
 
-  // Select first habitat by default
   const currentHabitat = selectedHabitat || availableHabitats[0];
 
   const handleSwitchMode = (newMode) => {
@@ -120,7 +112,6 @@ function UnifiedApp() {
         position: "relative",
       }}
     >
-      {/* Mode Switch Header */}
       <div
         style={{
           display: "flex",
@@ -137,7 +128,7 @@ function UnifiedApp() {
       >
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           {/* <h2 style={{ margin: 0, color: "#fff", fontSize: "18px" }}>
-            🚀 Habitat Creator
+             Habitat Creator
           </h2> */}
           {mode === "interior" && currentHabitat && (
             <span
@@ -168,7 +159,7 @@ function UnifiedApp() {
           )}
         </div>
 
-        <div
+        {/* <div
           style={{
             display: "flex",
             gap: "5px",
@@ -194,7 +185,7 @@ function UnifiedApp() {
               gap: "8px",
             }}
           >
-            🏗️ <span>Exterior Design</span>
+             <span>Exterior Design</span>
           </button>
 
           <button
@@ -214,9 +205,9 @@ function UnifiedApp() {
               gap: "8px",
             }}
           >
-            🏠 <span>Interior Design</span>
+            <span>Interior Design</span>
           </button>
-        </div>
+        </div> */}
 
         {mode === "interior" && availableHabitats.length > 1 && (
           <select
@@ -246,7 +237,6 @@ function UnifiedApp() {
         )}
       </div>
 
-      {/* Content Area */}
       <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
         {mode === "exterior" ? (
           <App />

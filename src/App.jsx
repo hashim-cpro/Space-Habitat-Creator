@@ -5,18 +5,14 @@ import Toolbar from "./components/Toolbar";
 import PropertiesPanel from "./components/PropertiesPanel";
 import BodyPanel from "./components/BodyPanel";
 import ModuleLibraryPanel from "./components/ModuleLibraryPanel";
-import ModuleParameterPanel from "./components/ModuleParameterPanel";
 import { exportToJSON, exportToSTL, exportToGLB } from "./utils/exportUtils";
 import { importFiles } from "./utils/importUtils";
 import { HistoryManager } from "./utils/historyManager";
 import * as ModuleGenerators from "./utils/moduleGenerators";
 import { findFreeSpawnPosition } from "./utils/physicsSystem";
 import "./App.css";
-// Vercel Analytics: Removed Next.js-specific component import. We inject the script in main.jsx for Vite.
 
-// Helper function to recreate geometry from parameters
 function recreateGeometry(obj) {
-  // If it's a module with a generator, regenerate it
   if (obj.type === "module" && obj.userData?.moduleDefinition) {
     const generatorFunc =
       ModuleGenerators[obj.userData.moduleDefinition.generator];
@@ -34,7 +30,6 @@ function recreateGeometry(obj) {
     }
   }
 
-  // For imported/custom geometry that was lost during save, skip it
   if (obj.type === "custom") {
     console.warn(
       `Cannot recreate custom/imported geometry for ${obj.name}. Object will be skipped. Re-import the file.`
@@ -42,8 +37,6 @@ function recreateGeometry(obj) {
     return null;
   }
 
-  // For primitive shapes, ensure they have valid parameters
-  // The geometry will be created by CADObject component
   if (!obj.parameters) {
     console.warn(`Object ${obj.name} missing parameters, skipping`);
     return null;
@@ -54,17 +47,18 @@ function recreateGeometry(obj) {
 
 function App() {
   const [objects, setObjects] = useState([]);
-  const [selectedObjectIds, setSelectedObjectIds] = useState([]); // Multi-select support
+  const [selectedObjectIds, setSelectedObjectIds] = useState([]);
   const [transformMode, setTransformMode] = useState("translate");
   const [gridSize] = useState(20);
   const [showGrid, setShowGrid] = useState(true);
   const [objectIdCounter, setObjectIdCounter] = useState(1);
-  const [axisLock, setAxisLock] = useState(null); // 'x', 'y', 'z', or null
+  const [axisLock, setAxisLock] = useState(null);
   const [isBodyPanelOpen, setBodyPanelOpen] = useState(false);
   const [isModuleLibraryOpen, setModuleLibraryOpen] = useState(false);
-  const [selectedModuleForParams, setSelectedModuleForParams] = useState(null);
   const historyManager = useRef(new HistoryManager());
+    // eslint-disable-next-line no-unused-vars
   const [canUndo, setCanUndo] = useState(false);
+    // eslint-disable-next-line no-unused-vars
   const [canRedo, setCanRedo] = useState(false);
   const objectsRef = useRef(objects);
 
@@ -72,7 +66,6 @@ function App() {
     objectsRef.current = objects;
   }, [objects]);
 
-  // Load from localStorage on mount
   useEffect(() => {
     const savedData = localStorage.getItem("habitat-creator-exterior");
     if (savedData) {
@@ -80,7 +73,7 @@ function App() {
         const parsed = JSON.parse(savedData);
         if (parsed.objects && Array.isArray(parsed.objects)) {
           console.log("Raw objects from localStorage:", parsed.objects.length);
-          // Recreate geometry for objects that need it, filter out nulls (custom objects)
+
           const objectsWithGeometry = parsed.objects
             .map((obj) => {
               const recreated = recreateGeometry(obj);
@@ -110,14 +103,11 @@ function App() {
     }
   }, []);
 
-  // Auto-save to localStorage every 3 seconds
   useEffect(() => {
     const saveInterval = setInterval(() => {
       if (objects.length > 0) {
-        // Serialize objects, but skip Three.js geometry objects (can't be stringified)
         const serializableObjects = objects.map((obj) => {
           const { geometry: _geometry, ...rest } = obj;
-          // For modules, ensure parameters are at root level for recreation
           if (obj.type === "module" && obj.userData?.parameters) {
             return {
               ...rest,
@@ -148,25 +138,19 @@ function App() {
     [objects]
   );
 
-  // Save state to history
   const saveHistory = (newObjects) => {
     historyManager.current.push(newObjects);
     setCanUndo(historyManager.current.canUndo());
     setCanRedo(historyManager.current.canRedo());
   };
 
-  // Removed primitive shape creation; focused on imports only.
-
   const selectObject = (id, isMultiSelect = false) => {
     if (id === null) {
-      // Unselect all
       setSelectedObjectIds([]);
-      setSelectedModuleForParams(null);
       return;
     }
 
     if (isMultiSelect) {
-      // Toggle selection
       if (selectedObjectIds.includes(id)) {
         setSelectedObjectIds(selectedObjectIds.filter((objId) => objId !== id));
       } else {
@@ -174,17 +158,6 @@ function App() {
       }
     } else {
       setSelectedObjectIds([id]);
-
-      // If selecting a procedural module, open parameter panel
-      const selectedObj = objects.find((obj) => obj.id === id);
-      if (
-        selectedObj?.type === "module" &&
-        selectedObj?.geometryType === "procedural"
-      ) {
-        setSelectedModuleForParams(selectedObj);
-      } else {
-        setSelectedModuleForParams(null);
-      }
     }
   };
 
@@ -257,9 +230,6 @@ function App() {
     }
   };
 
-  // Removed sketch/extrusion functionality
-
-  // Undo/Redo functions
   const handleUndo = () => {
     const previousState = historyManager.current.undo();
     if (previousState) {
@@ -278,42 +248,31 @@ function App() {
     }
   };
 
-  // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Don't trigger shortcuts when typing in input fields
       if (e.target.matches("input, textarea")) {
         return;
       }
 
-      // Ctrl+Z for undo
       if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) {
         e.preventDefault();
         handleUndo();
-      }
-      // Ctrl+Shift+Z or Ctrl+Y for redo
-      else if (
+      } else if (
         ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "z") ||
         ((e.ctrlKey || e.metaKey) && e.key === "y")
       ) {
         e.preventDefault();
         handleRedo();
-      }
-      // Delete key
-      else if (e.key === "Delete" || e.key === "Backspace") {
+      } else if (e.key === "Delete" || e.key === "Backspace") {
         e.preventDefault();
         deleteSelectedObjects();
-      }
-      // X, Y, Z keys for axis locking
-      else if (e.key === "x" || e.key === "X") {
+      } else if (e.key === "x" || e.key === "X") {
         setAxisLock(axisLock === "x" ? null : "x");
       } else if (e.key === "y" || e.key === "Y") {
         setAxisLock(axisLock === "y" ? null : "y");
       } else if (e.key === "z" || e.key === "Z") {
         setAxisLock(axisLock === "z" ? null : "z");
-      }
-      // Escape to clear axis lock
-      else if (e.key === "Escape") {
+      } else if (e.key === "Escape") {
         setAxisLock(null);
       }
     };
@@ -339,7 +298,6 @@ function App() {
         id: counter,
         hidden: false,
         ...bp,
-        // Ensure geometry is in both locations for export compatibility
         geometry: bp.geometry || bp.parameters?.geometry,
       };
       newObjs.push(obj);
@@ -353,12 +311,10 @@ function App() {
     setBodyPanelOpen(true);
   };
 
-  // Module System Functions
   const handleModuleSelect = (moduleDefinition) => {
     const counter = objectIdCounter;
 
     if (moduleDefinition.type === "procedural") {
-      // Generate geometry for procedural modules
       const generatorFunc = ModuleGenerators[moduleDefinition.generator];
       if (!generatorFunc) {
         console.error(
@@ -369,7 +325,6 @@ function App() {
 
       const geometry = generatorFunc(moduleDefinition.defaultParams);
 
-      // Determine a free spawn position (avoid origin collision)
       const freePos = findFreeSpawnPosition(
         geometry,
         new THREE.Vector3(0, 0, 0)
@@ -412,13 +367,8 @@ function App() {
       setObjectIdCounter(counter + 1);
       setSelectedObjectIds([counter]);
       saveHistory(newObjs);
-
-      // Open parameter panel for adjustment
-      setSelectedModuleForParams(newModule);
     } else if (moduleDefinition.type === "imported") {
-      // Handle imported STL/GLB models
       console.log(`Would load model from: ${moduleDefinition.modelPath}`);
-      // TODO: Implement STL/GLB loading when models are available
       alert(
         `Model ${moduleDefinition.name} will be loaded when available at ${moduleDefinition.modelPath}`
       );
@@ -426,18 +376,20 @@ function App() {
   };
 
   const handleModuleParameterChange = (newParams) => {
-    if (!selectedModuleForParams) return;
+    if (selectedObjectIds.length !== 1) return;
 
-    const moduleId = selectedModuleForParams.id;
-    const moduleDef = selectedModuleForParams.userData.moduleDefinition;
+    const moduleId = selectedObjectIds[0];
+    const selectedModule = objects.find((obj) => obj.id === moduleId);
 
-    // Regenerate geometry with new parameters
+    if (!selectedModule?.userData?.moduleDefinition) return;
+
+    const moduleDef = selectedModule.userData.moduleDefinition;
+
     const generatorFunc = ModuleGenerators[moduleDef.generator];
     if (!generatorFunc) return;
 
     const newGeometry = generatorFunc(newParams);
 
-    // Update the module
     const newObjects = objects.map((obj) => {
       if (obj.id === moduleId) {
         return {
@@ -456,10 +408,6 @@ function App() {
 
     setObjects(newObjects);
     saveHistory(newObjects);
-
-    // Update selected module reference
-    const updatedModule = newObjects.find((obj) => obj.id === moduleId);
-    setSelectedModuleForParams(updatedModule);
   };
 
   const handleToggleVisibility = (id) => {
@@ -496,16 +444,16 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>🛰️ Nexus Habitat Creator</h1>
+        <h1>Nexus Space Habitat Creator</h1>
         <div className="header-controls">
-          <div className="undo-redo-group">
+          {/* <div className="undo-redo-group">
             <button
               onClick={handleUndo}
               disabled={!canUndo}
               className="header-btn"
               title="Undo (Ctrl+Z)"
             >
-              ↶ Undo
+              Undo
             </button>
             <button
               onClick={handleRedo}
@@ -513,7 +461,7 @@ function App() {
               className="header-btn"
               title="Redo (Ctrl+Shift+Z)"
             >
-              ↷ Redo
+              Redo
             </button>
           </div>
           <div className="axis-lock-group">
@@ -538,7 +486,7 @@ function App() {
             >
               Z
             </button>
-          </div>
+          </div> */}
           <label>
             <input
               type="checkbox"
@@ -575,14 +523,6 @@ function App() {
         />
       )}
 
-      {selectedModuleForParams && (
-        <ModuleParameterPanel
-          module={selectedModuleForParams}
-          onParameterChange={handleModuleParameterChange}
-          onClose={() => setSelectedModuleForParams(null)}
-        />
-      )}
-
       <div className={`app-content ${drawerOpen ? "drawer-open" : ""}`}>
         <div className="canvas-container">
           <CADCanvas
@@ -603,6 +543,7 @@ function App() {
               selectedObjects={selectedObjects}
               onUpdateObject={updateObject}
               onExport={handleExport}
+              onParameterChange={handleModuleParameterChange}
             />
           )}
         </div>

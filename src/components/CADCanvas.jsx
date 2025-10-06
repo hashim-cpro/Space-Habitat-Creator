@@ -10,7 +10,6 @@ import Scene from "./Scene";
 import MagneticEffectManager from "./MagneticEffectManager";
 import { useTouchGestures } from "../utils/touchGestures";
 
-// Helper component to access scene
 function SceneContent({
   objects,
   selectedObjectIds,
@@ -52,7 +51,6 @@ export default function CADCanvas({
 }) {
   const orbitControlsRef = useRef();
 
-  // Enable touch gestures for iPad
   useTouchGestures(orbitControlsRef, true);
 
   return (
@@ -61,13 +59,11 @@ export default function CADCanvas({
       style={{ background: "#1a1a1a" }}
       onPointerMissed={() => onSelectObject(null)}
     >
-      {/* Lighting */}
       <ambientLight intensity={0.5} />
       <directionalLight position={[10, 10, 5]} intensity={1} castShadow />
       <directionalLight position={[-10, -10, -5]} intensity={0.3} />
       <pointLight position={[0, 10, 0]} intensity={0.5} />
 
-      {/* Grid */}
       {showGrid && (
         <Grid
           args={[gridSize, gridSize]}
@@ -83,7 +79,6 @@ export default function CADCanvas({
         />
       )}
 
-      {/* Scene with objects and magnetic effects */}
       <SceneContent
         objects={objects}
         selectedObjectIds={selectedObjectIds}
@@ -93,10 +88,8 @@ export default function CADCanvas({
         axisLock={axisLock}
       />
 
-      {/* Controls */}
       <OrbitControls ref={orbitControlsRef} makeDefault />
 
-      {/* Gizmo Helper */}
       <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
         <GizmoViewcube />
       </GizmoHelper>

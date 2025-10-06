@@ -60,7 +60,7 @@ function ZonePalette({ onZoneDragStart, disabled }) {
   return (
     <div className="zone-palette">
       <div className="zone-palette-header">
-        <h3>🛰️ Nexus Habitat Creator</h3>
+        <h3>Nexus Habitat Creator</h3>
         <p className="subtitle">Drag zones into your habitat</p>
       </div>
 
@@ -69,7 +69,7 @@ function ZonePalette({ onZoneDragStart, disabled }) {
         <input
           type="text"
           className="zone-search"
-          placeholder="🔍 Search zones..."
+          placeholder="Search zones..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -151,7 +151,7 @@ function ZonePalette({ onZoneDragStart, disabled }) {
 
       {filteredZones.length === 0 && (
         <div className="no-zones">
-          <div className="no-zones-icon">🔍</div>
+          <div className="no-zones-icon"></div>
           <div>No zones found</div>
           <div className="no-zones-hint">Try a different search term</div>
         </div>
@@ -160,15 +160,15 @@ function ZonePalette({ onZoneDragStart, disabled }) {
       {/* Instructions */}
       <div className="zone-palette-instructions">
         <div className="instruction-item">
-          <span className="instruction-icon">🖱️</span>
+          <span className="instruction-icon"></span>
           <span>Drag zones into 3D viewport</span>
         </div>
         <div className="instruction-item">
-          <span className="instruction-icon">🎯</span>
+          <span className="instruction-icon"></span>
           <span>Zones adapt to container shape</span>
         </div>
         <div className="instruction-item">
-          <span className="instruction-icon">🚫</span>
+          <span className="instruction-icon"></span>
           <span>Auto-collision detection</span>
         </div>
       </div>

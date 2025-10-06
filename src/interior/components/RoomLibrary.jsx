@@ -25,7 +25,7 @@ function RoomLibrary({ onAddRoom, crewSize }) {
   return (
     <div className="interior-panel-section">
       <h3 className="interior-panel-title">
-        <span className="icon">🏗️</span>
+        <span className="icon"></span>
         Room Library
       </h3>
 
@@ -34,7 +34,7 @@ function RoomLibrary({ onAddRoom, crewSize }) {
         <input
           type="text"
           className="interior-form-input"
-          placeholder="🔍 Search rooms..."
+          placeholder="Search rooms..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />

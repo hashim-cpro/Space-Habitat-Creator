@@ -196,7 +196,6 @@
   background: rgba(255, 50, 50, 1);
 }
 
-/* Modal styles */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -282,7 +281,6 @@
   box-shadow: 0 6px 16px rgba(91, 158, 252, 0.4);
 }
 
-/* Responsive design */
 @media (max-width: 768px) {
   .landing-page {
     padding: 24px 20px;
@@ -302,7 +300,6 @@
   }
 }
 
-/* Touch-friendly hover states for tablets */
 @media (hover: none) and (pointer: coarse) {
   .btn-delete-project {
     opacity: 1;

@@ -34,18 +34,15 @@ export function useTouchGestures(controlsRef, enabled = true) {
       const touches = e.touches;
 
       if (touches.length === 2) {
-        // Two finger gesture
         e.preventDefault();
 
         lastDistanceRef.current = getTouchDistance(touches[0], touches[1]);
         lastMidpointRef.current = getTouchMidpoint(touches[0], touches[1]);
 
-        // Disable rotation, enable panning for two fingers
         controls.enableRotate = false;
         controls.enablePan = true;
         controls.enableZoom = true;
       } else if (touches.length === 1) {
-        // One finger gesture - rotate
         controls.enableRotate = true;
         controls.enablePan = false;
         controls.enableZoom = false;
@@ -61,12 +58,10 @@ export function useTouchGestures(controlsRef, enabled = true) {
         const currentDistance = getTouchDistance(touches[0], touches[1]);
         const currentMidpoint = getTouchMidpoint(touches[0], touches[1]);
 
-        // Pinch to zoom
         if (lastDistanceRef.current > 0) {
           const delta = currentDistance - lastDistanceRef.current;
           const zoomSpeed = 0.01;
 
-          // Adjust camera zoom based on pinch
           if (controls.object.isPerspectiveCamera) {
             const dollyScale = Math.pow(0.95, delta * zoomSpeed);
             controls.object.position.multiplyScalar(dollyScale);
@@ -92,13 +87,11 @@ export function useTouchGestures(controlsRef, enabled = true) {
       if (touches.length < 2) {
         lastDistanceRef.current = 0;
 
-        // Reset to single finger controls
         if (touches.length === 1) {
           controls.enableRotate = true;
           controls.enablePan = false;
           controls.enableZoom = false;
         } else {
-          // No touches left
           controls.enableRotate = true;
           controls.enablePan = true;
           controls.enableZoom = true;
@@ -106,7 +99,6 @@ export function useTouchGestures(controlsRef, enabled = true) {
       }
     };
 
-    // Add touch event listeners
     domElement.addEventListener("touchstart", handleTouchStart, {
       passive: false,
     });

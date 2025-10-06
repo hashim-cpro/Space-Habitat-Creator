@@ -56,7 +56,6 @@ export default function ImprovedSketchModal({ onClose, onCreateExtrusion }) {
       ctx.stroke();
     }
 
-    // Draw lines
     ctx.strokeStyle = "#4a7c59";
     ctx.lineWidth = 2;
     lines.forEach((line) => {
@@ -66,7 +65,6 @@ export default function ImprovedSketchModal({ onClose, onCreateExtrusion }) {
       ctx.stroke();
     });
 
-    // Draw temporary line
     if (tempLineStart) {
       ctx.strokeStyle = "#6a9c79";
       ctx.setLineDash([5, 5]);
@@ -78,7 +76,6 @@ export default function ImprovedSketchModal({ onClose, onCreateExtrusion }) {
       ctx.setLineDash([]);
     }
 
-    // Draw points
     points.forEach((point, index) => {
       const isHovered =
         hoveredPoint &&
@@ -90,13 +87,11 @@ export default function ImprovedSketchModal({ onClose, onCreateExtrusion }) {
       ctx.arc(point.x, point.y, POINT_RADIUS, 0, Math.PI * 2);
       ctx.fill();
 
-      // Draw point number
       ctx.fillStyle = "#fff";
       ctx.font = "12px monospace";
       ctx.fillText(index + 1, point.x + 10, point.y - 10);
     });
 
-    // Highlight hovered/snapped point
     if (hoveredPoint) {
       const snappedPoint = findNearestPoint(hoveredPoint.x, hoveredPoint.y);
       if (snappedPoint) {
@@ -125,7 +120,6 @@ export default function ImprovedSketchModal({ onClose, onCreateExtrusion }) {
     let x = e.clientX - rect.left;
     let y = e.clientY - rect.top;
 
-    // Snap to existing point if nearby
     const nearestPoint = findNearestPoint(x, y);
     if (nearestPoint) {
       x = nearestPoint.x;
@@ -133,13 +127,11 @@ export default function ImprovedSketchModal({ onClose, onCreateExtrusion }) {
     }
 
     if (currentTool === "point") {
-      // Only add point if not snapping to existing one
       if (!nearestPoint) {
         setPoints([...points, { x, y }]);
       }
     } else if (currentTool === "line") {
       if (!tempLineStart) {
-        // Start new line
         if (!nearestPoint) {
           setPoints([...points, { x, y }]);
           setTempLineStart({ x, y });
@@ -147,7 +139,6 @@ export default function ImprovedSketchModal({ onClose, onCreateExtrusion }) {
           setTempLineStart(nearestPoint);
         }
       } else {
-        // End line
         const endPoint = nearestPoint || { x, y };
         if (!nearestPoint) {
           setPoints([...points, endPoint]);
@@ -178,11 +169,9 @@ export default function ImprovedSketchModal({ onClose, onCreateExtrusion }) {
       return;
     }
 
-    // Create shape from points and lines
     const shape = new THREE.Shape();
 
     if (lines.length > 0) {
-      // Use lines to create shape
       const sortedLines = [...lines];
       shape.moveTo(
         (sortedLines[0].start.x - 300) / 20,
@@ -193,7 +182,7 @@ export default function ImprovedSketchModal({ onClose, onCreateExtrusion }) {
         shape.lineTo((line.end.x - 300) / 20, -(line.end.y - 250) / 20);
       });
     } else {
-      // Use points to create shape (legacy mode)
+      // Use points tocreate shape (legacy mode)
       const normalizedPoints = points.map((p) => ({
         x: (p.x - 300) / 20,
         y: -(p.y - 250) / 20,
@@ -217,7 +206,7 @@ export default function ImprovedSketchModal({ onClose, onCreateExtrusion }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="sketch-header">
-          <h2>✏️ Advanced Sketch</h2>
+          <h2>Advanced Sketch</h2>
           <button onClick={onClose} className="close-btn">
             ×
           </button>
@@ -253,20 +242,20 @@ export default function ImprovedSketchModal({ onClose, onCreateExtrusion }) {
                   setTempLineStart(null);
                 }}
               >
-                📍 Point
+                Point
               </button>
               <button
                 className={`tool-btn ${currentTool === "line" ? "active" : ""}`}
                 onClick={() => setCurrentTool("line")}
               >
-                📏 Line
+                Line
               </button>
             </div>
 
             <h3>Actions</h3>
             <div className="control-group">
               <button onClick={handleClear} className="control-btn">
-                🗑️ Clear All
+                Clear All
               </button>
               <button
                 onClick={() => {
@@ -276,7 +265,7 @@ export default function ImprovedSketchModal({ onClose, onCreateExtrusion }) {
                 }}
                 className="control-btn"
               >
-                ↩️ Undo Last
+                Undo Last
               </button>
             </div>
 
@@ -326,13 +315,13 @@ export default function ImprovedSketchModal({ onClose, onCreateExtrusion }) {
                 className="create-btn"
                 disabled={points.length < 2 && lines.length === 0}
               >
-                ✨ Create 3D Object
+                Create 3D Object
               </button>
             </div>
 
             <div className="stats">
               <p>
-                <strong>💡 Tips:</strong>
+                <strong>Tips:</strong>
               </p>
               <p>• Points snap to nearby points (magnetic!)</p>
               <p>• Line tool: Click start, then end point</p>

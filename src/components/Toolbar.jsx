@@ -43,7 +43,7 @@ export default function Toolbar({
         onClick={onToggleModules}
         title="Toggle module library"
       >
-        🏗️ Modules
+        Modules
       </button>
 
       <div className="toolbar-section">
@@ -113,7 +113,7 @@ export default function Toolbar({
           disabled={!selectedCount}
           style={{ width: "90px" }}
         >
-          <span className="btn-icon">✖</span>
+          <span className="btn-icon">×</span>
           <span className="btn-label" style={{ fontSize: "13px" }}>
             Delete
           </span>

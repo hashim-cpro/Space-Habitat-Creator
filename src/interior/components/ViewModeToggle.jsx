@@ -9,17 +9,17 @@ function ViewModeToggle({ viewMode, onChangeViewMode }) {
   const modes = [
     {
       id: "2d-polar",
-      label: "🎯 Polar View",
+      label: "Polar View",
       tooltip: "Top-down circular view",
     },
     {
       id: "2d-unwrapped",
-      label: "📏 Unwrapped",
+      label: "Unwrapped",
       tooltip: "Cylinder unrolled flat",
     },
     {
       id: "3d-interior",
-      label: "🏠 3D Interior",
+      label: "3D Interior",
       tooltip: "Perspective walkthrough",
     },
   ];

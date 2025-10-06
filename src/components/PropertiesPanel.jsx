@@ -6,6 +6,7 @@ export default function PropertiesPanel({
   selectedObjects,
   onUpdateObject,
   onExport,
+  onParameterChange,
 }) {
   const [name, setName] = useState("");
   const [material, setMaterial] = useState({
@@ -16,11 +17,21 @@ export default function PropertiesPanel({
     transparent: false,
     wireframe: false,
   });
+  const [params, setParams] = useState({});
 
   useEffect(() => {
     if (selectedObject) {
       setName(selectedObject.name);
       setMaterial(selectedObject.material);
+
+      if (selectedObject?.userData?.moduleDefinition) {
+        const def = selectedObject.userData.moduleDefinition;
+        setParams(
+          selectedObject.userData.parameters || def.defaultParams || {}
+        );
+      } else {
+        setParams({});
+      }
     }
   }, [selectedObject]);
 
@@ -71,6 +82,28 @@ export default function PropertiesPanel({
     { value: "stl", label: "STL" },
     { value: "glb", label: "GLB" },
   ];
+
+  const handleParamChange = (paramName, value) => {
+    const newParams = { ...params, [paramName]: value };
+    setParams(newParams);
+    if (onParameterChange) {
+      onParameterChange(newParams);
+    }
+  };
+
+  const handleResetParams = () => {
+    if (selectedObject?.userData?.moduleDefinition) {
+      const def = selectedObject.userData.moduleDefinition;
+      setParams(def.defaultParams);
+      if (onParameterChange) {
+        onParameterChange(def.defaultParams);
+      }
+    }
+  };
+
+  const isProceduralModule =
+    selectedObject?.userData?.moduleDefinition?.type === "procedural" &&
+    selectedObject?.userData?.moduleDefinition?.adjustableParams;
 
   if (!selectedObject) {
     const multiSelectMessage =
@@ -334,6 +367,35 @@ export default function PropertiesPanel({
           </div>
         </div>
 
+        {isProceduralModule && (
+          <div className="property-group module-params-group">
+            <h3>Module Parameters</h3>
+            <div className="module-info-compact">
+              <span className="module-icon-small">
+                {selectedObject.userData.moduleDefinition.icon}
+              </span>
+              <span className="module-desc-small">
+                {selectedObject.userData.moduleDefinition.description}
+              </span>
+            </div>
+            <div className="param-controls">
+              {selectedObject.userData.moduleDefinition.adjustableParams.map(
+                (param) => (
+                  <ParamControl
+                    key={param.name}
+                    param={param}
+                    value={params[param.name] ?? param.min}
+                    onChange={(val) => handleParamChange(param.name, val)}
+                  />
+                )
+              )}
+            </div>
+            <button className="reset-params-btn" onClick={handleResetParams}>
+              ↺ Reset to Default
+            </button>
+          </div>
+        )}
+
         <div className="export-section">
           <h3>Export</h3>
           {exportFormats.map((format) => (
@@ -346,6 +408,64 @@ export default function PropertiesPanel({
             </button>
           ))}
         </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * ParamControl - Individual parameter slider/input for module parameters
+ */
+function ParamControl({ param, value, onChange }) {
+  const [localValue, setLocalValue] = useState(value);
+
+  useEffect(() => {
+    setLocalValue(value);
+  }, [value]);
+
+  const handleSliderChange = (e) => {
+    const val = parseFloat(e.target.value);
+    setLocalValue(val);
+  };
+
+  const handleSliderRelease = () => {
+    onChange(localValue);
+  };
+
+  const handleInputChange = (e) => {
+    const val = parseFloat(e.target.value);
+    if (!isNaN(val)) {
+      setLocalValue(val);
+      onChange(val);
+    }
+  };
+
+  return (
+    <div className="param-control">
+      <label>
+        <span className="param-label">{param.label}</span>
+        <span className="param-value">{localValue.toFixed(2)}</span>
+      </label>
+      <div className="param-input-group">
+        <input
+          type="range"
+          min={param.min}
+          max={param.max}
+          step={param.step}
+          value={localValue}
+          onChange={handleSliderChange}
+          onMouseUp={handleSliderRelease}
+          onTouchEnd={handleSliderRelease}
+        />
+        <input
+          type="number"
+          min={param.min}
+          max={param.max}
+          step={param.step}
+          value={localValue}
+          onChange={handleInputChange}
+          className="number-input"
+        />
       </div>
     </div>
   );

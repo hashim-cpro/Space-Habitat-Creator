@@ -465,7 +465,7 @@ function EditorView({ initialProject, onExit }) {
           >
             ← Home
           </button>
-          <h1>🏗️ {currentProject.name}</h1>
+          <h1>{currentProject.name}</h1>
         </div>
         <div className="header-controls">
           <button
@@ -473,7 +473,7 @@ function EditorView({ initialProject, onExit }) {
             className="header-btn"
             title="Save (Ctrl+S)"
           >
-            💾 Save
+            Save
           </button>
           <div className="undo-redo-group">
             <button
@@ -482,7 +482,7 @@ function EditorView({ initialProject, onExit }) {
               className="header-btn"
               title="Undo (Ctrl+Z)"
             >
-              ↶ Undo
+              Undo
             </button>
             <button
               onClick={handleRedo}
@@ -490,7 +490,7 @@ function EditorView({ initialProject, onExit }) {
               className="header-btn"
               title="Redo (Ctrl+Shift+Z)"
             >
-              ↷ Redo
+              Redo
             </button>
           </div>
           <div className="axis-lock-group">

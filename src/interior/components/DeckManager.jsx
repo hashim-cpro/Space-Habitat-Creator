@@ -1,7 +1,4 @@
-/**
- * Deck Manager Component
- * Manages multiple decks/levels in the habitat
- */
+
 
 import PropTypes from "prop-types";
 
@@ -39,7 +36,7 @@ function DeckManager({
                   }
                 }}
               >
-                🗑️
+                ×
               </button>
             </div>
             <div className="deck-info">
@@ -57,7 +54,7 @@ function DeckManager({
         disabled={decks.length >= Math.floor(cylinderLength / 2.5)}
         title="Add new deck/level"
       >
-        ➕ Add Deck
+        Add Deck
       </button>
 
       <div

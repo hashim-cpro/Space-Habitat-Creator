@@ -17,7 +17,6 @@ export default function SketchModal({ onClose, onCreateExtrusion }) {
     ctx.fillStyle = "#1a1a1a";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Draw grid
     ctx.strokeStyle = "#333";
     ctx.lineWidth = 1;
     for (let i = 0; i < canvas.width; i += 20) {
@@ -33,7 +32,6 @@ export default function SketchModal({ onClose, onCreateExtrusion }) {
       ctx.stroke();
     }
 
-    // Draw points and lines
     if (points.length > 0) {
       ctx.strokeStyle = "#4a7c59";
       ctx.fillStyle = "#4a7c59";
@@ -46,20 +44,17 @@ export default function SketchModal({ onClose, onCreateExtrusion }) {
       }
       ctx.stroke();
 
-      // Draw points
       points.forEach((point, index) => {
         ctx.beginPath();
         ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
         ctx.fill();
 
-        // Draw point number
         ctx.fillStyle = "#fff";
         ctx.font = "12px monospace";
         ctx.fillText(index + 1, point.x + 10, point.y - 10);
         ctx.fillStyle = "#4a7c59";
       });
 
-      // Draw line to cursor if drawing
       if (isDrawing && points.length > 0) {
         ctx.strokeStyle = "#6a9c79";
         ctx.setLineDash([5, 5]);
@@ -103,11 +98,10 @@ export default function SketchModal({ onClose, onCreateExtrusion }) {
       return;
     }
 
-    // Convert canvas coordinates to 3D coordinates (normalized)
     const canvas = canvasRef.current;
     const normalizedPoints = points.map((p) => ({
-      x: (p.x - canvas.width / 2) / 20, // Scale down and center
-      y: -(p.y - canvas.height / 2) / 20, // Flip Y axis and scale
+      x: (p.x - canvas.width / 2) / 20, 
+      y: -(p.y - canvas.height / 2) / 20, 
     }));
 
     onCreateExtrusion(normalizedPoints, extrudeDepth, bevelEnabled, bevelSize);

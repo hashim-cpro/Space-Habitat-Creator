@@ -36,7 +36,7 @@ function ZonePropertiesPanel({ zone, onUpdateZone, onDeleteZone }) {
     return (
       <div className="zone-properties-panel empty">
         <div className="empty-state">
-          <div className="empty-icon">🎯</div>
+          <div className="empty-icon"></div>
           <div className="empty-text">No zone selected</div>
           <div className="empty-hint">
             Click on a zone or drag one from the palette
@@ -122,7 +122,7 @@ function ZonePropertiesPanel({ zone, onUpdateZone, onDeleteZone }) {
             onClick={handleToggleVisibility}
             title={localZone.visible ? "Hide" : "Show"}
           >
-            {localZone.visible ? "👁️" : "👁️‍🗨️"}
+            {localZone.visible ? "Show" : "Hide"}
           </button>
         </div>
       </div>
@@ -137,7 +137,7 @@ function ZonePropertiesPanel({ zone, onUpdateZone, onDeleteZone }) {
           {volume.toFixed(2)} m³
           {!meetsMinVolume && (
             <span className="volume-warning">
-              ⚠️ Below minimum ({zoneDef.minVolume} m³)
+              Below minimum ({zoneDef.minVolume} m³)
             </span>
           )}
         </div>
@@ -273,7 +273,7 @@ function ZonePropertiesPanel({ zone, onUpdateZone, onDeleteZone }) {
       {/* Delete Button */}
       <div className="panel-footer">
         <button className="delete-btn" onClick={handleDelete}>
-          🗑️ Delete Zone
+          Delete Zone
         </button>
       </div>
     </div>

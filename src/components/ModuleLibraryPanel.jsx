@@ -2,10 +2,7 @@ import React, { useState, useMemo } from "react";
 import { MODULE_LIBRARY, MODULE_CATEGORIES } from "../utils/moduleLibrary";
 import "./ModuleLibraryPanel.css";
 
-/**
- * ModuleLibraryPanel - Sidebar showing available modules
- * Supports drag-and-drop to add modules to scene
- */
+//drag and drop doesn't work here
 export default function ModuleLibraryPanel({ onModuleSelect, onClose }) {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
@@ -13,16 +10,13 @@ export default function ModuleLibraryPanel({ onModuleSelect, onClose }) {
     new Set(Object.values(MODULE_CATEGORIES))
   );
 
-  // Filter modules by category and search
   const filteredModules = useMemo(() => {
     let modules = MODULE_LIBRARY;
 
-    // Filter by category
     if (selectedCategory !== "all") {
       modules = modules.filter((mod) => mod.category === selectedCategory);
     }
 
-    // Filter by search term
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
       modules = modules.filter(
@@ -35,7 +29,6 @@ export default function ModuleLibraryPanel({ onModuleSelect, onClose }) {
     return modules;
   }, [selectedCategory, searchTerm]);
 
-  // Group modules by category
   const groupedModules = useMemo(() => {
     const groups = {};
     filteredModules.forEach((mod) => {
@@ -71,23 +64,21 @@ export default function ModuleLibraryPanel({ onModuleSelect, onClose }) {
   return (
     <div className="module-library-panel">
       <div className="panel-header">
-        <h2>🏗️ Module Library</h2>
+        <h2>Module Library</h2>
         <button className="close-btn" onClick={onClose} title="Close">
           ✕
         </button>
       </div>
 
-      {/* Search Bar */}
       <div className="search-bar">
         <input
           type="text"
-          placeholder="🔍 Search modules..."
+          placeholder="Search modules..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
 
-      {/* Category Filter */}
       <div className="category-filter">
         <button
           className={selectedCategory === "all" ? "active" : ""}
@@ -106,7 +97,6 @@ export default function ModuleLibraryPanel({ onModuleSelect, onClose }) {
         ))}
       </div>
 
-      {/* Module List */}
       <div className="module-list">
         {Object.keys(groupedModules).length === 0 ? (
           <div className="no-results">
@@ -144,19 +134,12 @@ export default function ModuleLibraryPanel({ onModuleSelect, onClose }) {
         )}
       </div>
 
-      {/* Instructions */}
-      <div className="panel-footer">
-        <small>
-          💡 <strong>Tip:</strong> Click to place or drag to canvas
-        </small>
-      </div>
+
     </div>
   );
 }
 
-/**
- * ModuleCard - Individual module item
- */
+
 function ModuleCard({ module, onClick, onDragStart }) {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -176,7 +159,7 @@ function ModuleCard({ module, onClick, onDragStart }) {
 
         {module.type === "procedural" && (
           <div className="module-params">
-            <span className="param-badge">⚙️ Adjustable</span>
+            <span className="param-badge">Adjustable</span>
             {module.defaultParams && (
               <span className="param-preview">
                 {Object.entries(module.defaultParams)
@@ -191,7 +174,7 @@ function ModuleCard({ module, onClick, onDragStart }) {
         {module.type === "imported" && (
           <div className="module-params">
             <span className="param-badge">
-              {module.isPriority ? "⭐ Priority" : "📦 Custom"}
+              {module.isPriority ? "Priority" : "Custom"}
             </span>
           </div>
         )}

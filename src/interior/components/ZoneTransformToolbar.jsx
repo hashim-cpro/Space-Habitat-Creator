@@ -34,7 +34,7 @@ function ZoneTransformToolbar({
         data-tooltip="Move (G)"
         disabled={isDisabled}
       >
-        ↔️
+        Move
         <span className="shortcut">G</span>
       </button>
 
@@ -44,7 +44,7 @@ function ZoneTransformToolbar({
         data-tooltip="Rotate (R)"
         disabled={isDisabled}
       >
-        🔄
+        Rotate
         <span className="shortcut">R</span>
       </button>
 
@@ -54,7 +54,7 @@ function ZoneTransformToolbar({
         data-tooltip="Scale (S)"
         disabled={isDisabled}
       >
-        ⚏<span className="shortcut">S</span>
+        Scale<span className="shortcut">S</span>
       </button>
 
       <div className="toolbar-divider"></div>
@@ -66,7 +66,7 @@ function ZoneTransformToolbar({
         disabled={isDisabled}
         style={{ color: "#ff4444" }}
       >
-        🗑️
+        Delete
       </button>
 
       {isDisabled && (

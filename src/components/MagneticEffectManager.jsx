@@ -53,7 +53,7 @@ export default function MagneticEffectManager({
 
     // DEBUG: Log selection status
     if (selectedObjectIds.length > 0 && Math.random() > 0.99) {
-      console.log("🎯 MagneticEffectManager:", {
+      console.log("MagneticEffectManager:", {
         selectedIds: selectedObjectIds.length,
         foundMeshes: selectedMeshes.length,
         isModule: selectedMeshes.map((m) => m.userData?.isModule),
@@ -103,7 +103,7 @@ export default function MagneticEffectManager({
 
             // DEBUG: Log effect activation
             if (Math.random() > 0.98) {
-              console.log("✨ Visual effects active:", {
+              console.log("Visual effects active:", {
                 distance: distance.toFixed(2),
                 particles: magneticParticlesRef.current.length,
               });

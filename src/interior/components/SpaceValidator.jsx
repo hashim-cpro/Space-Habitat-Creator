@@ -11,7 +11,7 @@ function SpaceValidator({ validation, crewSize }) {
     return (
       <div className="interior-panel-section">
         <h3 className="interior-panel-title">
-          <span className="icon">✅</span>
+          <span className="icon"></span>
           Validation
         </h3>
         <div style={{ textAlign: "center", padding: "1rem", color: "#888" }}>
@@ -26,17 +26,17 @@ function SpaceValidator({ validation, crewSize }) {
   return (
     <div className="interior-panel-section">
       <h3 className="interior-panel-title">
-        <span className="icon">✅</span>
+        <span className="icon"></span>
         NASA Standards Compliance
       </h3>
 
       {/* Summary */}
       <div className={`validation-summary ${summary.status}`}>
         <div style={{ fontSize: "1.2rem" }}>
-          {summary.status === "excellent" && "✅"}
+          {summary.status === "excellent" && "✓"}
           {summary.status === "good" && "✓"}
-          {summary.status === "needs-improvement" && "⚠️"}
-          {summary.status === "invalid" && "❌"}
+          {summary.status === "needs-improvement" && "!"}
+          {summary.status === "invalid" && "×"}
         </div>
         <div>
           <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
@@ -64,7 +64,7 @@ function SpaceValidator({ validation, crewSize }) {
           <div className="validation-list">
             {validation.errors.map((error, index) => (
               <div key={index} className="validation-item error">
-                <span>❌</span>
+                <span>×</span>
                 <span>{error}</span>
               </div>
             ))}
@@ -88,7 +88,7 @@ function SpaceValidator({ validation, crewSize }) {
           <div className="validation-list" style={{ maxHeight: "200px" }}>
             {validation.warnings.slice(0, 10).map((warning, index) => (
               <div key={index} className="validation-item warning">
-                <span>⚠️</span>
+                <span>!</span>
                 <span>{warning}</span>
               </div>
             ))}

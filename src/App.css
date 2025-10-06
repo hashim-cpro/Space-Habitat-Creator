@@ -179,7 +179,6 @@ body {
   transform: translateX(0);
 }
 
-/* Keyboard shortcuts hint */
 .shortcuts-hint {
   position: absolute;
   bottom: 20px;
@@ -254,9 +253,7 @@ body {
   }
 }
 
-/* Touch device optimizations */
 @media (hover: none) and (pointer: coarse) {
-  /* Larger touch targets */
   .header-btn,
   .axis-btn,
   .toolbar-btn {
@@ -264,26 +261,22 @@ body {
     min-width: 44px;
   }
 
-  /* Disable hover effects that don't work on touch */
   .toolbar-btn:hover:not(:disabled),
   .header-btn:hover:not(:disabled) {
     transform: none;
   }
 
-  /* Better visibility for active states */
   .toolbar-btn.active,
   .axis-btn.active {
     box-shadow: 0 0 0 3px rgba(91, 158, 252, 0.4);
   }
 
-  /* Touch-friendly scrolling */
   .properties-drawer,
   .body-panel-list,
   .toolbar.modern {
     -webkit-overflow-scrolling: touch;
   }
 
-  /* Prevent text selection during gestures */
   .canvas-container {
     -webkit-user-select: none;
     user-select: none;
@@ -291,7 +284,6 @@ body {
   }
 }
 
-/* iPad specific optimizations */
 @media (min-width: 768px) and (max-width: 1024px) and (hover: none) {
   .app-content.drawer-open {
     padding-right: 360px;
@@ -302,7 +294,6 @@ body {
   }
 }
 
-/* Landscape tablet */
 @media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
   .app-header {
     padding: 10px 20px;
@@ -313,7 +304,6 @@ body {
   }
 }
 
-/* Loading state */
 .loading {
   display: flex;
   justify-content: center;

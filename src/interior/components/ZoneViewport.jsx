@@ -621,7 +621,7 @@ function ZoneViewport({
       {/* Drop hint when dragging */}
       {draggedZoneType && (
         <div className="drop-hint">
-          <div className="drop-hint-icon">🎯</div>
+          <div className="drop-hint-icon"></div>
           <div className="drop-hint-text">
             Drop to place {draggedZoneType} zone
           </div>

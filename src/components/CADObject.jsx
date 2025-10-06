@@ -27,22 +27,17 @@ export default function CADObject({
   transformMode,
   onTransform,
   axisLock,
-  // allObjects prop no longer needed for collision (physicsWorld handles broad‑phase)
 }) {
   const meshRef = useRef();
   const transformControlsRef = useRef();
   const [hovered, setHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  // snapTarget state removed (immediate snapping makes it unnecessary)
   const { scene } = useThree();
 
-  // Track if this is a module
   const isModule = object.type === "module" && object.userData?.isModule;
 
-  // Create unique material instance for modules so we can modify emissive properties
   const material = useMemo(() => {
     if (object.type === "module" && object.userData?.moduleDefinition) {
-      // Clone module material for this instance so we can modify it
       const baseMaterial = getModuleMaterial(
         object.userData.geometry.userData.moduleType
       );
@@ -55,7 +50,6 @@ export default function CADObject({
     object.userData?.geometry?.userData?.moduleType,
   ]);
 
-  // Cleanup material on unmount
   useEffect(() => {
     return () => {
       if (material) {
@@ -65,17 +59,14 @@ export default function CADObject({
   }, [material]);
 
   const geometry = useMemo(() => {
-    // Check for geometry in priority order: root > userData > parameters > create new
     if (object.geometry && object.geometry.isBufferGeometry) {
       return object.geometry;
     }
 
-    // Handle procedural modules
     if (object.type === "module" && object.userData?.geometry) {
       return object.userData.geometry;
     }
 
-    // Handle custom/imported geometry in parameters
     if (
       object.parameters?.geometry &&
       object.parameters.geometry.isBufferGeometry
@@ -83,7 +74,6 @@ export default function CADObject({
       return object.parameters.geometry;
     }
 
-    // Validate parameters exist for primitive shapes
     if (!object.parameters) {
       console.error(
         `Object ${object.name} (${object.id}) missing parameters, cannot create geometry`
@@ -91,7 +81,6 @@ export default function CADObject({
       return new THREE.BoxGeometry(1, 1, 1); // Fallback
     }
 
-    // Generate primitive geometry based on type
     switch (object.type) {
       case "box":
         return new THREE.BoxGeometry(
@@ -143,7 +132,6 @@ export default function CADObject({
     };
   }, [geometry, object.type]);
 
-  // Show/hide attachment points when module is selected
   useEffect(() => {
     const mesh = meshRef.current;
     if (isModule && mesh) {
@@ -161,7 +149,6 @@ export default function CADObject({
     };
   }, [isSelected, isModule, scene]);
 
-  // Store object ID in userData for scene lookup + register with physics
   useEffect(() => {
     const mesh = meshRef.current;
     if (mesh) {
@@ -178,25 +165,19 @@ export default function CADObject({
     };
   }, [object.id, isModule, object.userData?.moduleDefinition]);
 
-  // When procedural module geometry regenerates, inform physics
   useEffect(() => {
     if (meshRef.current && isModule && object.userData?.geometry) {
-      // geometry already replaced in parent; refresh bounding structures
       notifyGeometryChanged(meshRef.current);
     }
   }, [isModule, object.userData?.geometry]);
 
   useFrame(() => {
     if (meshRef.current && isSelected && isDragging) {
-      // Use physics broad‑phase to gather potential colliders
       const otherMeshes = physicsWorld.getPotentialColliders(meshRef.current);
 
-      // ALIGNMENT LOGIC (prior to collision finalization)
-      // Compute potential snaps (one per axis) relative to nearby objects (same set used for collision)
       if (otherMeshes.length > 0) {
         const snaps = computeAlignmentSnaps(meshRef.current, otherMeshes);
         if (snaps.length) {
-          // Apply snap deltas to position BEFORE collision blocking so that blocked axis logic respects alignment
           const pos = meshRef.current.position.clone();
           snaps.forEach((s) => {
             pos[s.axis] += s.delta; // move exactly onto target line/face
@@ -204,7 +185,7 @@ export default function CADObject({
           meshRef.current.position.copy(pos);
           meshRef.current.updateMatrixWorld();
 
-          // Visual guides
+          // Visual guides that don't work for some reason
           clearAlignmentGuides(scene);
           const guideDescs = buildAlignmentGuideDescriptors(
             meshRef.current,
@@ -219,19 +200,15 @@ export default function CADObject({
       }
 
       if (isModule) {
-        // IMMEDIATE SNAP LOGIC for modules (no force – direct alignment when in range)
         meshRef.current.updateMatrixWorld();
 
-        // Get all other modules (excluding self)
         const otherModules = otherMeshes.filter((m) => m.userData?.isModule);
 
         if (otherModules.length > 0) {
-          // Get attachment points from current module
           const myPoints = getAttachmentPoints(meshRef.current);
 
-          // Find closest compatible attachment point
           let closestMatch = null;
-          let minDistance = 4.5; // Snap activation range
+          let minDistance = 4.5;
 
           myPoints.forEach((myPoint) => {
             const closestPoint = findClosestAttachmentPoint(
@@ -255,21 +232,18 @@ export default function CADObject({
           });
 
           if (closestMatch) {
-            // If within snap distance, snap immediately (auto-align while dragging)
             if (closestMatch.distance < 1.2) {
               snapModuleToPoint(
                 meshRef.current,
                 closestMatch.myPoint,
                 closestMatch.otherPoint
               );
-              // snapped immediately
               if (meshRef.current.material) {
                 meshRef.current.material.emissive = new THREE.Color(0x000000);
                 meshRef.current.material.emissiveIntensity = 0;
               }
             } else {
-              // Within magnetic field but not yet snap threshold → show pre-snap highlight
-              // highlight only (using emissive)
+              
               if (meshRef.current.material) {
                 const intensity = Math.max(0, 1 - closestMatch.distance / 4.5);
                 meshRef.current.material.emissive = new THREE.Color(0x0044ff);
@@ -278,7 +252,6 @@ export default function CADObject({
               }
             }
           } else {
-            // clear highlight
             if (meshRef.current.material) {
               meshRef.current.material.emissive = new THREE.Color(0x000000);
               meshRef.current.material.emissiveIntensity = 0;
@@ -288,18 +261,16 @@ export default function CADObject({
         }
       }
 
-      // CONTINUOUS COLLISION PREVENTION (iterative resolution)
-      // Additionally: per-axis directional blocking: if movement along an axis causes collision, clamp that axis back.
+      
       if (otherMeshes.length > 0) {
         const current = meshRef.current.position.clone();
         const last =
           meshRef.current.userData.lastSafePosition || current.clone();
 
-        // Determine attempted delta
         const delta = current.clone().sub(last);
 
         if (!delta.equals(new THREE.Vector3(0, 0, 0))) {
-          // Test each axis independently (X, Y, Z). We'll build a candidate position that only keeps axes that remain collision-free.
+       
           const trial = last.clone();
           const axes = ["x", "y", "z"];
           axes.forEach((axis) => {
@@ -311,7 +282,6 @@ export default function CADObject({
               otherMeshes
             );
             if (collision) {
-              // Revert that axis only (block movement in that direction)
               trial[axis] -= delta[axis];
             }
           });
@@ -340,11 +310,9 @@ export default function CADObject({
         }
         meshRef.current.userData.lastSafePosition =
           meshRef.current.position.clone();
-        // Update physics world with new position
         physicsWorld.updateBody(meshRef.current);
       }
     } else if (meshRef.current && meshRef.current.material && !isDragging) {
-      // Reset highlight when not dragging
       meshRef.current.material.emissive = new THREE.Color(0x000000);
       meshRef.current.material.emissiveIntensity = 0;
       meshRef.current.material.needsUpdate = true;
@@ -355,7 +323,6 @@ export default function CADObject({
   const emitTransform = (commit = false) => {
     if (!meshRef.current) return;
 
-    // (Commit no longer needed for snapping – handled live while dragging)
 
     onTransform(
       {
@@ -367,7 +334,6 @@ export default function CADObject({
     );
   };
 
-  // Axis constraint based on axisLock
   const getTransformSpace = () => {
     if (!axisLock) return "world";
     return "local";
@@ -420,10 +386,8 @@ export default function CADObject({
       >
         <primitive object={geometry} attach="geometry" />
         {material ? (
-          // Module-specific material (cloned instance for emissive control)
           <primitive object={material} attach="material" />
         ) : (
-          // Standard material
           <meshStandardMaterial
             color={
               isSelected

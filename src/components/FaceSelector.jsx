@@ -56,10 +56,9 @@ export default function FaceSelector({
     };
 
     gl.domElement.addEventListener("pointermove", handlePointerMove);
-    gl.domElement.addEventListener("click", handleClick, true); // Use capture phase
-    gl.domElement.addEventListener("pointerdown", handlePointerDown, true); // Use capture phase
-    gl.domElement.addEventListener("pointerup", handlePointerUp, true); // Use capture phase
-
+    gl.domElement.addEventListener("click", handleClick, true); 
+    gl.domElement.addEventListener("pointerdown", handlePointerDown, true); 
+    gl.domElement.addEventListener("pointerup", handlePointerUp, true);
     return () => {
       gl.domElement.removeEventListener("pointermove", handlePointerMove);
       gl.domElement.removeEventListener("click", handleClick, true);
@@ -69,7 +68,6 @@ export default function FaceSelector({
     };
   }, [enabled, mesh, hoveredFaceIndex, onFaceSelect, raycaster, camera, gl]);
 
-  // Render face highlight
   if (
     !enabled ||
     !mesh ||
@@ -97,7 +95,6 @@ export default function FaceSelector({
   const v2 = new THREE.Vector3().fromBufferAttribute(positionAttribute, i2);
   const v3 = new THREE.Vector3().fromBufferAttribute(positionAttribute, i3);
 
-  // Transform vertices to world space
   v1.applyMatrix4(mesh.matrixWorld);
   v2.applyMatrix4(mesh.matrixWorld);
   v3.applyMatrix4(mesh.matrixWorld);

@@ -47,7 +47,6 @@ export function deleteProject(id) {
     const filtered = projects.filter((p) => p.id !== id);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
 
-    // Clear current project if it was deleted
     const currentId = getCurrentProjectId();
     if (currentId === id) {
       clearCurrentProject();
@@ -86,7 +85,6 @@ function generateId() {
   return `project_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
 
-// Auto-save helper
 export function createAutoSaver(saveCallback, delay = 2000) {
   let timeoutId = null;
 

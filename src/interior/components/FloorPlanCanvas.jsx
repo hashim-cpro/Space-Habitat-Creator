@@ -30,12 +30,10 @@ function FloorPlanCanvas({
     const ctx = canvas.getContext("2d");
     const rect = canvas.getBoundingClientRect();
 
-    // Set canvas size
     canvas.width = rect.width * window.devicePixelRatio;
     canvas.height = rect.height * window.devicePixelRatio;
     ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
 
-    // Clear canvas
     ctx.clearRect(0, 0, rect.width, rect.height);
 
     if (viewMode === "2d-polar") {
@@ -45,20 +43,17 @@ function FloorPlanCanvas({
     }
   }, [deck, cylinderRadius, viewMode, selectedRoomId, hoveredRoomId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Draw polar (circular) view
   const drawPolarView = (ctx, width, height) => {
     const centerX = width / 2;
     const centerY = height / 2;
     const scale = Math.min(width, height) / (cylinderRadius * 2.5);
 
-    // Draw outer cylinder wall
     ctx.strokeStyle = "rgba(0, 245, 255, 0.3)";
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.arc(centerX, centerY, cylinderRadius * scale, 0, Math.PI * 2);
     ctx.stroke();
 
-    // Draw center clearance
     ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
     ctx.lineWidth = 1;
     ctx.setLineDash([5, 5]);
@@ -67,7 +62,6 @@ function FloorPlanCanvas({
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Draw angle markers
     ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
     ctx.lineWidth = 1;
     for (let i = 0; i < 12; i++) {
@@ -86,14 +80,12 @@ function FloorPlanCanvas({
       ctx.stroke();
     }
 
-    // Draw rooms
     if (deck && deck.rooms) {
       deck.rooms.forEach((room) => {
         drawRoomPolar(ctx, room, centerX, centerY, scale);
       });
     }
 
-    // Draw labels
     ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
     ctx.font = "12px 'Space Grotesk', sans-serif";
     ctx.textAlign = "center";
@@ -103,23 +95,19 @@ function FloorPlanCanvas({
     ctx.fillText("270°", centerX, centerY + cylinderRadius * scale + 20);
   };
 
-  // Draw unwrapped (flat) view
   const drawUnwrappedView = (ctx, width, height) => {
     const circumference = Math.PI * 2 * cylinderRadius;
     const scaleX = width / circumference;
     const scaleY = height / (cylinderRadius * 2);
     const offsetY = height / 2;
 
-    // Draw boundaries
     ctx.strokeStyle = "rgba(0, 245, 255, 0.3)";
     ctx.lineWidth = 2;
     ctx.strokeRect(0, 0, width, height);
 
-    // Draw grid
     ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
     ctx.lineWidth = 1;
 
-    // Vertical lines (angles)
     for (let i = 0; i <= 12; i++) {
       const x = (i / 12) * width;
       ctx.beginPath();
@@ -128,7 +116,6 @@ function FloorPlanCanvas({
       ctx.stroke();
     }
 
-    // Horizontal lines (radius)
     for (let i = 0; i <= 4; i++) {
       const y = (i / 4) * height;
       ctx.beginPath();
@@ -137,14 +124,12 @@ function FloorPlanCanvas({
       ctx.stroke();
     }
 
-    // Draw rooms
     if (deck && deck.rooms) {
       deck.rooms.forEach((room) => {
         drawRoomUnwrapped(ctx, room, scaleX, scaleY, offsetY);
       });
     }
 
-    // Labels
     ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
     ctx.font = "12px 'Space Grotesk', sans-serif";
     ctx.textAlign = "center";
@@ -155,14 +140,12 @@ function FloorPlanCanvas({
     ctx.fillText("360°", width, 15);
   };
 
-  // Draw a room in polar view
   const drawRoomPolar = (ctx, room, centerX, centerY, scale) => {
     const { bounds } = room;
     const roomType = ROOM_TYPES[room.type];
     const isSelected = room.id === selectedRoomId;
     const isHovered = room.id === hoveredRoomId;
 
-    // Draw room segment
     ctx.beginPath();
     ctx.arc(
       centerX,
@@ -209,26 +192,23 @@ function FloorPlanCanvas({
     ctx.font = "bold 11px 'Space Grotesk', sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(roomType?.icon || "📦", labelX, labelY - 10);
+    ctx.fillText(roomType?.icon || "", labelX, labelY - 10);
 
     ctx.font = "10px 'Space Grotesk', sans-serif";
     ctx.fillText(room.type.toUpperCase(), labelX, labelY + 5);
   };
 
-  // Draw a room in unwrapped view
   const drawRoomUnwrapped = (ctx, room, scaleX, scaleY, offsetY) => {
     const { bounds } = room;
     const roomType = ROOM_TYPES[room.type];
     const isSelected = room.id === selectedRoomId;
     const isHovered = room.id === hoveredRoomId;
 
-    // Convert to unwrapped coordinates
     const x1 = bounds.angleStart * cylinderRadius * scaleX;
     const x2 = bounds.angleEnd * cylinderRadius * scaleX;
     const y1 = offsetY - bounds.radiusOuter * scaleY;
     const y2 = offsetY - bounds.radiusInner * scaleY;
 
-    // Draw rectangle
     const alpha = isSelected ? 0.6 : isHovered ? 0.4 : 0.3;
     ctx.fillStyle = roomType?.color
       ? `${roomType.color}${Math.floor(alpha * 255)
@@ -237,7 +217,6 @@ function FloorPlanCanvas({
       : `rgba(74, 144, 226, ${alpha})`;
     ctx.fillRect(x1, y1, x2 - x1, y2 - y1);
 
-    // Stroke
     ctx.strokeStyle = isSelected
       ? "rgba(0, 245, 255, 1)"
       : isHovered
@@ -246,7 +225,6 @@ function FloorPlanCanvas({
     ctx.lineWidth = isSelected ? 3 : 2;
     ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
 
-    // Label
     const labelX = (x1 + x2) / 2;
     const labelY = (y1 + y2) / 2;
 
@@ -254,13 +232,12 @@ function FloorPlanCanvas({
     ctx.font = "bold 11px 'Space Grotesk', sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(roomType?.icon || "📦", labelX, labelY - 8);
+    ctx.fillText(roomType?.icon || "", labelX, labelY - 8);
 
     ctx.font = "9px 'Space Grotesk', sans-serif";
     ctx.fillText(room.type.toUpperCase(), labelX, labelY + 6);
   };
 
-  // Handle mouse move
   const handleMouseMove = (e) => {
     if (!deck || !canvasRef.current) return;
 
@@ -301,7 +278,6 @@ function FloorPlanCanvas({
     canvas.style.cursor = foundRoom ? "pointer" : "default";
   };
 
-  // Handle click
   const handleClick = () => {
     if (hoveredRoomId) {
       onSelectRoom(hoveredRoomId);
@@ -310,7 +286,6 @@ function FloorPlanCanvas({
     }
   };
 
-  // Handle context menu (right-click)
   const handleContextMenu = (e) => {
     e.preventDefault();
     if (hoveredRoomId && window.confirm("Delete this room?")) {
@@ -318,14 +293,12 @@ function FloorPlanCanvas({
     }
   };
 
-  // Handle drag over
   const handleDragOver = (e) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "copy";
     setIsDraggingNewRoom(true);
   };
 
-  // Handle drop
   const handleDrop = (e) => {
     e.preventDefault();
     const roomTypeId = e.dataTransfer.getData("roomType");
@@ -336,7 +309,6 @@ function FloorPlanCanvas({
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
 
-      // Calculate angle from drop position
       let angle = 0;
       if (viewMode === "2d-polar") {
         const centerX = rect.width / 2;
@@ -346,7 +318,6 @@ function FloorPlanCanvas({
         angle = Math.atan2(dy, dx);
         if (angle < 0) angle += Math.PI * 2;
       } else {
-        // Unwrapped view: x position maps to angle
         angle = (x / rect.width) * Math.PI * 2;
       }
 
@@ -357,7 +328,6 @@ function FloorPlanCanvas({
     setDraggedRoomType(null);
   };
 
-  // Handle drag enter
   const handleDragEnter = (e) => {
     const roomTypeId = e.dataTransfer.getData("roomType");
     if (roomTypeId) {
@@ -365,7 +335,6 @@ function FloorPlanCanvas({
     }
   };
 
-  // Handle drag leave
   const handleDragLeave = () => {
     setIsDraggingNewRoom(false);
   };
@@ -373,7 +342,7 @@ function FloorPlanCanvas({
   if (!deck) {
     return (
       <div className="interior-empty-state">
-        <div className="interior-empty-icon">🏗️</div>
+        <div className="interior-empty-icon"></div>
         <div className="interior-empty-message">
           Select a deck to view floor plan
         </div>

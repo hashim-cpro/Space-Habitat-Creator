@@ -1,3 +1,4 @@
+// no longer needed, keeping for future use
 import { useRef, useState, useEffect } from "react";
 import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
@@ -16,7 +17,6 @@ export default function FaceExtrusionControl({
   const startPointRef = useRef(null);
   const faceDataRef = useRef(null);
 
-  // Calculate face center and normal
   useEffect(() => {
     if (!object || faceIndex === null) return;
 
@@ -24,7 +24,6 @@ export default function FaceExtrusionControl({
     const position = geometry.attributes.position;
     const index = geometry.index;
 
-    // Get face vertices
     const faceStart = faceIndex * 3;
     const a = index ? index.array[faceStart] : faceStart;
     const b = index ? index.array[faceStart + 1] : faceStart + 1;
@@ -46,15 +45,12 @@ export default function FaceExtrusionControl({
       position.array[c * 3 + 2]
     );
 
-    // Transform to world space
     vA.applyMatrix4(object.matrixWorld);
     vB.applyMatrix4(object.matrixWorld);
     vC.applyMatrix4(object.matrixWorld);
 
-    // Calculate face center
     const center = new THREE.Vector3().add(vA).add(vB).add(vC).divideScalar(3);
 
-    // Calculate face normal
     const cb = new THREE.Vector3().subVectors(vC, vB);
     const ab = new THREE.Vector3().subVectors(vA, vB);
     const normal = new THREE.Vector3().crossVectors(cb, ab).normalize();
@@ -65,11 +61,9 @@ export default function FaceExtrusionControl({
   const handlePointerDown = (e) => {
     e.stopPropagation();
     setIsDragging(true);
-    // Disable OrbitControls during drag
     if (orbitControlsRef?.current) {
       orbitControlsRef.current.enabled = false;
     }
-    // Use R3F's event.point property
     startPointRef.current = e.point ? e.point.clone() : new THREE.Vector3();
     gl.domElement.style.cursor = "grabbing";
   };
@@ -82,16 +76,13 @@ export default function FaceExtrusionControl({
 
       const { normal, center } = faceDataRef.current;
 
-      // Calculate mouse position in 3D space
       const rect = gl.domElement.getBoundingClientRect();
       const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       const y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
 
-      // Create raycaster
       const raycaster = new THREE.Raycaster();
       raycaster.setFromCamera(new THREE.Vector2(x, y), camera);
 
-      // Create plane at face center with face normal
       const plane = new THREE.Plane().setFromNormalAndCoplanarPoint(
         normal,
         center
@@ -111,7 +102,6 @@ export default function FaceExtrusionControl({
 
     const handleGlobalPointerUp = () => {
       setIsDragging(false);
-      // Re-enable OrbitControls after drag
       if (orbitControlsRef?.current) {
         orbitControlsRef.current.enabled = true;
       }
@@ -139,7 +129,6 @@ export default function FaceExtrusionControl({
 
     const { normal } = faceDataRef.current;
 
-    // Project mouse movement onto face normal
     const currentPoint = e.point || new THREE.Vector3();
     const delta = new THREE.Vector3().subVectors(
       currentPoint,
@@ -173,13 +162,11 @@ export default function FaceExtrusionControl({
 
   return (
     <group>
-      {/* Arrow shaft */}
       <mesh position={handlePosition}>
         <cylinderGeometry args={[0.02, 0.02, 0.3, 8]} />
         <meshBasicMaterial color="#4a9cff" />
       </mesh>
 
-      {/* Arrow head (pointing out) */}
       <mesh
         position={handlePosition
           .clone()
@@ -190,7 +177,6 @@ export default function FaceExtrusionControl({
         <group rotation={[Math.PI / 2, 0, 0]} />
       </mesh>
 
-      {/* Arrow head (pointing in) */}
       <mesh
         position={handlePosition
           .clone()
@@ -201,7 +187,6 @@ export default function FaceExtrusionControl({
         <group rotation={[-Math.PI / 2, 0, 0]} />
       </mesh>
 
-      {/* Drag sphere - larger and visible on hover */}
       <mesh
         position={handlePosition}
         onPointerDown={handlePointerDown}
@@ -233,7 +218,6 @@ export default function FaceExtrusionControl({
         />
       </mesh>
 
-      {/* Distance label */}
       {isDragging && Math.abs(extrudeDistance) > 0.01 && (
         <Html position={handlePosition.toArray()}>
           <div
@@ -249,13 +233,12 @@ export default function FaceExtrusionControl({
               transform: "translate(-50%, -120%)",
             }}
           >
-            {extrudeDistance > 0 ? "↑" : "↓"}{" "}
+            {extrudeDistance > 0 ? "+" : "-"}{" "}
             {Math.abs(extrudeDistance).toFixed(2)}
           </div>
         </Html>
       )}
 
-      {/* Instructions */}
       {!isDragging && (
         <Html position={handlePosition.toArray()}>
           <div
@@ -270,7 +253,7 @@ export default function FaceExtrusionControl({
               transform: "translate(-50%, -150%)",
             }}
           >
-            ↕️ Drag to extrude
+            Drag to extrude
           </div>
         </Html>
       )}

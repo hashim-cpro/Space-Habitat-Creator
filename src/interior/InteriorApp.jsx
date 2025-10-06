@@ -125,7 +125,7 @@ function InteriorApp() {
       {/* Center - 3D Viewport */}
       <div className="interior-main">
         <div className="interior-header">
-          <h2>🏗️ Interior Functional Zones</h2>
+          <h2>Interior Functional Zones</h2>
           <div className="header-info">
             <span className="info-badge">
               {exteriorObjects.length} Container

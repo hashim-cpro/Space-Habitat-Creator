@@ -56,7 +56,7 @@ export default function LandingPage({ onOpenProject, onCreateProject }) {
     <div className="landing-page">
       <div className="landing-header">
         <div className="landing-title">
-          <h1>🏗️ Habitat Creator</h1>
+          <h1>Habitat Creator</h1>
           <p>Create and manage your 3D habitat models</p>
         </div>
         <button
@@ -70,7 +70,7 @@ export default function LandingPage({ onOpenProject, onCreateProject }) {
       <div className="projects-grid">
         {projects.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-icon">📦</div>
+            <div className="empty-icon"></div>
             <h2>No projects yet</h2>
             <p>Create your first habitat model to get started</p>
             <button
@@ -92,7 +92,7 @@ export default function LandingPage({ onOpenProject, onCreateProject }) {
                   <img src={project.thumbnail} alt={project.name} />
                 ) : (
                   <div className="thumbnail-placeholder">
-                    <span>🏗️</span>
+                    <span></span>
                   </div>
                 )}
               </div>
@@ -112,7 +112,7 @@ export default function LandingPage({ onOpenProject, onCreateProject }) {
                 onClick={(e) => handleDeleteProject(e, project.id)}
                 title="Delete project"
               >
-                ✖
+                ×
               </button>
             </div>
           ))

@@ -1,8 +1,4 @@
-/**
- * Interior 3D Viewport Component
- * Renders 3D perspective view of interior spaces
- * (Placeholder for Phase 2 implementation)
- */
+
 
 import PropTypes from "prop-types";
 import { useEffect, useRef } from "react";
@@ -24,14 +20,11 @@ function InteriorViewport3D({
   useEffect(() => {
     if (!mountRef.current) return;
 
-    const currentMount = mountRef.current; // Store ref for cleanup
-
-    // Scene setup
+    const currentMount = mountRef.current; 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x0a0a0f);
     sceneRef.current = scene;
 
-    // Camera
     const camera = new THREE.PerspectiveCamera(
       60,
       currentMount.clientWidth / currentMount.clientHeight,
@@ -160,7 +153,7 @@ function InteriorViewport3D({
           pointerEvents: "none",
         }}
       >
-        <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🏗️</div>
+        <div style={{ fontSize: "3rem", marginBottom: "1rem" }}></div>
         <div style={{ fontSize: "1.2rem", marginBottom: "0.5rem" }}>
           3D Interior View
         </div>
