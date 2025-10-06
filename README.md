@@ -1,63 +1,143 @@
-# 🏗️ Habitat Creator - Modular Space Habitat Assembly Tool
+<div align="center">
 
-A professional 3D CAD-style tool for designing and assembling modular space habitats, built for the **NASA Space Apps Challenge 2024**.
+# 🛰️ Nexus Habitat Creator
 
-## 🎯 Features
+**A lightweight browser-based 3D sandbox for rapid interior & exterior space habitat layout design**  
+Team project for the **NASA Space Apps Challenge (local hackathon submission)**.
 
-### ✨ **Modular Habitat Assembly System** (NEW!)
+</div>
 
-- 🏗️ **15+ Habitat Modules** - Procedural and imported STL models
-- ⚙️ **Real-time Parameter Adjustment** - Adjustable dimensions for all modules
-- 🔗 **Snap-to-Connect Framework** - Intelligent attachment point system
-- 🎨 **Professional Module Library** - Searchable, categorized, drag-and-drop
-- 📐 **Procedural Generators** - 7 parametric shape generators
+> interior desgin tool has been removed from the deployed version for now due to some bugs and basically because of it being incomplete, i am working on it atm.
 
-### 🎨 Core CAD Features
+## 🚀 Overview
 
-- 📦 **3D Model Import/Export** - GLB, STL, JSON formats
-- 🎯 **Precision Transforms** - Move, rotate, scale with axis locking
-- ↶↷ **Undo/Redo System** - Full history management
-- 💾 **Auto-Save Projects** - Save every 3 seconds to localStorage
-- 🖼️ **Landing Page** - Multi-project management interface
-- 📱 **Touch Gestures** - Full iPad support with pinch/rotate/pan
+This tool lets us sketch, iterate, and evaluate modular off‑Earth habitat configurations fast—no installs, just open and build. Users add procedural or imported modules, lay out interior elements, tag semantic Functional Zones (sleep, work, hygiene, storage, social, exercise, staging), and export scenes for fabrication, simulation, or further analysis. It sits intentionally between “blank 3D canvas” and “heavy CAD,” focusing on early concept clarity and human‑centered planning.
 
-### 🚀 Quick Start
+## � Challenge Context & NASA Resources Used
+
+The challenge required referencing NASA resources. We grounded design decisions in:
+
+1. **Defining the Net Habitable Volume for Long Duration Exploration Missions**  
+   https://ntrs.nasa.gov/api/citations/20200002973/downloads/20200002973.pdf  
+   → Informed Functional Zone definitions, volumetric efficiency thinking, and future intent to score usable volume vs. gross volume.
+
+2. **Habitats and Surface Construction Technology and Development Roadmap**  
+   https://spacearchitect.org/pubs/NASA-CP-97-206241-Cohen.pdf  
+   → Inspired module taxonomy (inflatable vs. rigid, connectors, nodes), expansion sequencing, and procedural module set.
+
+These documents were used strictly for conceptual guidance—no reproduction of NASA logos, marks, or protected imagery.
+
+## 🔧 Core Features
+
+- Multi‑project management (local persistence, auto‑save, instant resume)
+- Procedural module generators (cylinders, inflatable variants, domes, tunnels, adapters, docking ports)
+- Import external geometry (GLB / GLTF / STL) → normalized into editable custom objects
+- Export scene as JSON (structured schema), STL (fabrication/printing), GLB (interchange)
+- Functional Zones tagging layer (semantic intent over raw meshes)
+- Transform tools: move / rotate / scale, axis lock, multi‑select, duplicate, hide/show
+- Undo / redo history manager
+- Parameter editing panel for procedural modules
+- Basic collision/spawn assistance (free position finder)
+- Touch gesture support groundwork (mobile/tablet usability path)
+- Lightweight physics + future hooks scaffold
+
+## 🧠 Functional Zones (Semantic Layer)
+
+Instead of only pushing meshes around, users label volumes with intended use (e.g., sleep, hygiene, work, social). This enables future analytics: adjacency checks, redundancy, ergonomic coverage, circulation path planning, and net habitable volume metrics derived from tagged regions.
+
+## 📦 Import / Export Workflow
+
+| Action | Formats          | Notes                                                                         |
+| ------ | ---------------- | ----------------------------------------------------------------------------- |
+| Import | GLB / GLTF / STL | Geometry converted to internal blueprint; triangle count sanity warnings      |
+| Export | JSON             | Structured schema (objects, transforms, parameters, material)                 |
+| Export | STL              | Binary preferred; baked transforms; suitable for printing / mechanical review |
+| Export | GLB              | Single packaged scene for viewers / pipelines                                 |
+
+## 🛠️ Tech Stack
+
+- **React + Vite**: Fast iteration + modern build pipeline
+- **Three.js + @react-three/fiber + @react-three/drei**: Declarative 3D scene, helpers, loaders
+- **three-mesh-bvh**: Spatial acceleration potential (future collision/queries)
+- **three-csg-ts**: Constructive solid geometry utilities (future boolean ops expansion)
+- **Custom procedural generators**: Parametric habitat module geometry
+- **LocalStorage project layer**: Auto‑save & multi‑project
+- **Export pipeline**: GLTFExporter, STLExporter, structured JSON serializer
+- **Import pipeline**: GLTFLoader, STLLoader with material + transform normalization
+- **HistoryManager**: Undo/redo stack abstraction
+- **Analytics**: Lightweight Vercel script injection (no Next.js dependency)
+
+## 🧪 Current Status & Philosophy
+
+Early-stage concept tool: keep UI lean, iteration fast, semantics rich. Priorities: clarity > visual polish, extensibility > one‑off hacks. Performance tactics: selective re-rendering, baked geometry reuse preparation, lightweight material sets.
+
+## 🛤️ Roadmap (Planned / Aspirational)
+
+- Functional Zone adjacency & redundancy scoring
+- Net Habitable Volume estimation overlay
+- Reach & clearance heuristic checks
+- Multi‑deck interior integration (interior subsystem merge)
+- Procedural pathing / circulation suggestions
+- Physics & environment placeholder integration (radiation, atmosphere modules)
+- Optional cloud sync + collaborative editing
+- Instancing for repetitive fixtures (beds, racks, lockers)
+- Constraint solver (alignment, docking ring validation)
+
+## 🤖 AI Assistance Disclosure
+
+Brief, transparent usage:
+
+- Submission + README wording refinement (human concepts; AI tightened phrasing)
+- Lightweight code autocomplete suggestions (React component scaffolds, small utilities) — all reviewed & edited
+- No AI-generated images, audio, or NASA branding; no autonomous layout or optimization
+
+## 👥 Team & Attribution
+
+Built by a local hackathon team for the NASA Space Apps Challenge. All architectural/feature decisions, Functional Zone definitions, and module taxonomy are original interpretations informed by publicly available NASA resources (listed above). No official endorsement implied.
+
+## ⚡ Quick Start
 
 ```bash
 # Install dependencies
 npm install
 
-# Start development server
+# Run dev server
 npm run dev
 
-# Build for production
+# Build production bundle
 npm run build
+
+# Preview production build
+npm run preview
 ```
 
-## 📚 Documentation
+## 🧩 Procedural Module Set (Current)
 
-- 📖 **[QUICK_START_MODULES.md](QUICK_START_MODULES.md)** - How to use the modular system
-- 🔧 **[MODULAR_HABITAT_SYSTEM.md](MODULAR_HABITAT_SYSTEM.md)** - Technical documentation
-- 📋 **[IMPLEMENTATION_CHECKLIST.md](IMPLEMENTATION_CHECKLIST.md)** - Complete feature list
-- 🎨 **[VISUAL_SUMMARY.md](VISUAL_SUMMARY.md)** - Quick visual overview
-- 📦 **[public/models/README.md](public/models/README.md)** - STL model specifications
+- Rigid cylinders (size‑variant, parametric)
+- Inflatable cylinder variants
+- Multi‑level / adapter cylinders
+- Domes (full & shallow)
+- Tunnels / connectors
+- Docking ports / adapters
+- Attachment markers (structural reference)
 
-## 🏗️ Available Modules
+## 🕹️ Key Interactions
 
-### Procedural Modules (Instant Use)
+| Action           | Shortcut / Gesture                |
+| ---------------- | --------------------------------- |
+| Undo / Redo      | Ctrl+Z / Ctrl+Shift+Z (or Ctrl+Y) |
+| Delete selection | Delete / Backspace                |
+| Axis lock toggle | X / Y / Z                         |
+| Clear axis lock  | Esc                               |
 
-- 🏠 Small/Medium/Large Habitat Cylinders (adjustable)
-- 🎈 Inflatable Modules (BEAM-style)
-- 🔮 Observation Domes (full & shallow)
-- 🚇 Tunnels & Connectors (various sizes)
-- 🔌 Size Adapters (conical transitions)
-- 🔗 Docking Ports (collars)
+## 🔐 Licensing & NASA Use Disclaimer
 
-### Imported Models (Ready for STL Files)
+This project references NASA-authored technical papers for design reasoning only. It does **not** use NASA logos, flags, or mission insignia. Any future NASA-related data integrations will follow branding and usage policies.
 
-- 🚪 Detailed Airlock (Priority 1)
-- ✚ 4-Way Junction Node (Priority 1)
-- ✳️ 6-Way Junction Node (Priority 1)
-- ☀️ Solar Arrays (Priority 2)
-- 📡 Communications Antenna (Priority 2)
-- 🔘 NASA CBM Docking Adapter (Priority 2)
+## � Contributing (Post-Challenge)
+
+Potential future contributions: optimization algorithms, ergonomic analytics, collaborative editing layer, UI refinement. Open to structured contributions after judging window.
+
+---
+
+“Design fast, label intent early, optimize later.” — Team Nexus
