@@ -9,9 +9,8 @@ Team project for the **NASA Space Apps Challenge (local hackathon submission)**.
 
 > interior desgin tool has been removed from the deployed version for now due to some bugs and basically because of it being incomplete, i am working on it atm.
 
-## 🚀 Overview
 
-This tool lets us sketch, iterate, and evaluate modular off‑Earth habitat configurations fast—no installs, just open and build. Users add procedural or imported modules, lay out interior elements, tag semantic Functional Zones (sleep, work, hygiene, storage, social, exercise, staging), and export scenes for fabrication, simulation, or further analysis. It sits intentionally between “blank 3D canvas” and “heavy CAD,” focusing on early concept clarity and human‑centered planning.
+A wannabe CAD type tool in which you can build a habitat from basic prebuilt modules or import your custom modules, make a habitat and then export it in various 3d formats as well. It allows for exterior and interior habitat layout design. It also saves everything currently in localstorage, i will add a backend later though.
 
 ## � Challenge Context & NASA Resources Used
 
@@ -27,63 +26,16 @@ The challenge required referencing NASA resources. We grounded design decisions 
 
 These documents were used strictly for conceptual guidance—no reproduction of NASA logos, marks, or protected imagery.
 
-## 🔧 Core Features
 
-- Multi‑project management (local persistence, auto‑save, instant resume)
-- Procedural module generators (cylinders, inflatable variants, domes, tunnels, adapters, docking ports)
-- Import external geometry (GLB / GLTF / STL) → normalized into editable custom objects
-- Export scene as JSON (structured schema), STL (fabrication/printing), GLB (interchange)
-- Functional Zones tagging layer (semantic intent over raw meshes)
-- Transform tools: move / rotate / scale, axis lock, multi‑select, duplicate, hide/show
-- Undo / redo history manager
-- Parameter editing panel for procedural modules
-- Basic collision/spawn assistance (free position finder)
-- Touch gesture support groundwork (mobile/tablet usability path)
-- Lightweight physics + future hooks scaffold
 
-## 🧠 Functional Zones (Semantic Layer)
+##  Import / Export Workflow
+import export supported in stl, glb and json. 
 
-Instead of only pushing meshes around, users label volumes with intended use (e.g., sleep, hygiene, work, social). This enables future analytics: adjacency checks, redundancy, ergonomic coverage, circulation path planning, and net habitable volume metrics derived from tagged regions.
+## Tech Stack
+just take a look at the package jdon for this
 
-## 📦 Import / Export Workflow
 
-| Action | Formats          | Notes                                                                         |
-| ------ | ---------------- | ----------------------------------------------------------------------------- |
-| Import | GLB / GLTF / STL | Geometry converted to internal blueprint; triangle count sanity warnings      |
-| Export | JSON             | Structured schema (objects, transforms, parameters, material)                 |
-| Export | STL              | Binary preferred; baked transforms; suitable for printing / mechanical review |
-| Export | GLB              | Single packaged scene for viewers / pipelines                                 |
-
-## 🛠️ Tech Stack
-
-- **React + Vite**: Fast iteration + modern build pipeline
-- **Three.js + @react-three/fiber + @react-three/drei**: Declarative 3D scene, helpers, loaders
-- **three-mesh-bvh**: Spatial acceleration potential (future collision/queries)
-- **three-csg-ts**: Constructive solid geometry utilities (future boolean ops expansion)
-- **Custom procedural generators**: Parametric habitat module geometry
-- **LocalStorage project layer**: Auto‑save & multi‑project
-- **Export pipeline**: GLTFExporter, STLExporter, structured JSON serializer
-- **Import pipeline**: GLTFLoader, STLLoader with material + transform normalization
-- **HistoryManager**: Undo/redo stack abstraction
-- **Analytics**: Lightweight Vercel script injection (no Next.js dependency)
-
-## 🧪 Current Status & Philosophy
-
-Early-stage concept tool: keep UI lean, iteration fast, semantics rich. Priorities: clarity > visual polish, extensibility > one‑off hacks. Performance tactics: selective re-rendering, baked geometry reuse preparation, lightweight material sets.
-
-## 🛤️ Roadmap (Planned / Aspirational)
-
-- Functional Zone adjacency & redundancy scoring
-- Net Habitable Volume estimation overlay
-- Reach & clearance heuristic checks
-- Multi‑deck interior integration (interior subsystem merge)
-- Procedural pathing / circulation suggestions
-- Physics & environment placeholder integration (radiation, atmosphere modules)
-- Optional cloud sync + collaborative editing
-- Instancing for repetitive fixtures (beds, racks, lockers)
-- Constraint solver (alignment, docking ring validation)
-
-## ⚡ Quick Start
+## Quick Start
 
 ```bash
 # Install dependencies
@@ -98,24 +50,5 @@ npm run build
 # Preview production build
 npm run preview
 ```
-
-## 🧩 Procedural Module Set (Current)
-
-- Rigid cylinders (size‑variant, parametric)
-- Inflatable cylinder variants
-- Multi‑level / adapter cylinders
-- Domes (full & shallow)
-- Tunnels / connectors
-- Docking ports / adapters
-- Attachment markers (structural reference)
-
-## 🕹️ Key Interactions
-
-| Action           | Shortcut / Gesture                |
-| ---------------- | --------------------------------- |
-| Undo / Redo      | Ctrl+Z / Ctrl+Shift+Z (or Ctrl+Y) |
-| Delete selection | Delete / Backspace                |
-| Axis lock toggle | X / Y / Z                         |
-| Clear axis lock  | Esc                               |
 
 
